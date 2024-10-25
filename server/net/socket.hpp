@@ -38,7 +38,7 @@ namespace obsidian::net {
          * \param fd Socket file descriptor.
          * \note This takes ownership of fd.
          */
-        explicit socket(io::file_descriptor::handle_type fd);
+        explicit socket(io::file_descriptor::handle_type fd) noexcept;
 
         /*!
          * \brief Creates a socket.

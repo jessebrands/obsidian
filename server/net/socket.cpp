@@ -23,7 +23,8 @@
 #include <sys/socket.h>
 
 namespace obsidian::net {
-    socket::socket(io::file_descriptor::handle_type const fd) : fd_(fd) {
+    socket::socket(io::file_descriptor::handle_type const fd) noexcept
+        : fd_(fd) {
         // Intentionally left blank.
     }
 
