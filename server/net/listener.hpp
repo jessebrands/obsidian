@@ -21,6 +21,7 @@
 #include <netdb.h>
 #include <string>
 
+#include "net/address.hpp"
 #include "net/socket.hpp"
 
 namespace obsidian::net {
@@ -53,6 +54,10 @@ namespace obsidian::net {
          */
         static listener create(std::string const& address, std::string const& port, int backlog = default_backlog);
 
+        /*!
+         * Gets the address of this listener.
+         * \return Address of this listener.
+         */
         [[nodiscard]]
         address const& get_address() const noexcept {
             return address_;

@@ -4,12 +4,12 @@ add_executable(obsidian
         io/file_descriptor.hpp
         net/socket.cpp
         net/socket.hpp
+        net/address.cpp
+        net/address.hpp
         net/listener.cpp
         net/listener.hpp
-        io/queue.cpp
-        io/queue.hpp)
-        io/uring/queue.cpp
-        io/uring/queue.hpp)
+        net/socket.cpp
+        net/socket.hpp)
 
 set_target_properties(obsidian PROPERTIES
         CXX_STANDARD 20
