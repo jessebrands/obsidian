@@ -5,7 +5,9 @@ add_executable(obsidian
         net/socket.cpp
         net/socket.hpp
         net/listener.cpp
-        net/listener.hpp)
+        net/listener.hpp
+        io/queue.cpp
+        io/queue.hpp)
 
 set_target_properties(obsidian PROPERTIES
         CXX_STANDARD 20
