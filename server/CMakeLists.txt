@@ -18,3 +18,7 @@ target_compile_options(obsidian
 
 target_include_directories(obsidian
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+
+target_link_libraries(obsidian
+        # io_uring and liburing
+        PRIVATE uring::uring)
