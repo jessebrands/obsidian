@@ -8,6 +8,8 @@ add_executable(obsidian
         net/listener.hpp
         io/queue.cpp
         io/queue.hpp)
+        io/uring/queue.cpp
+        io/uring/queue.hpp)
 
 set_target_properties(obsidian PROPERTIES
         CXX_STANDARD 20

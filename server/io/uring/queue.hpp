@@ -20,7 +20,7 @@
 
 #include <liburing.h>
 
-namespace obsidian::io {
+namespace obsidian::io::uring {
     /*!
      * \brief Wrapper around the io_uring queue.
      */
@@ -71,5 +71,23 @@ namespace obsidian::io {
          * \return This queue.
          */
         queue& operator=(queue&& other) noexcept;
+
+        /*!
+         * \brief Polls the completion queue for a completed event.
+         * \param cqe Pointer to a CQE pointer.
+         * \return true if there was an event, false if not.
+         */
+        bool poll(io_uring_cqe** cqe) noexcept;
+
+        /*!
+         * \brief Marks a CQE as processed and makes it available for a new CQE.
+         * \param cqe Pointer to the CQE.
+         */
+        void seen(io_uring_cqe* cqe) noexcept;
+
+        /*!
+         * \brief Submits the submission queue to the kernel.
+         */
+        void submit() noexcept;
     };
 }

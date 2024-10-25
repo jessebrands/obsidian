@@ -20,7 +20,7 @@
 
 #include "queue.hpp"
 
-namespace obsidian::io {
+namespace obsidian::io::uring {
     queue::queue(unsigned const sq_entries, unsigned const cq_entries)
         : ring_{} {
         io_uring_params params = {};
@@ -46,5 +46,17 @@ namespace obsidian::io {
         }
         ring_ = std::exchange(other.ring_, {});
         return *this;
+    }
+
+    bool queue::poll(io_uring_cqe** cqe) noexcept {
+        return io_uring_peek_cqe(&ring_, cqe) == 0;
+    }
+
+    void queue::seen(io_uring_cqe* cqe) noexcept {
+        io_uring_cqe_seen(&ring_, cqe);
+    }
+
+    void queue::submit() noexcept {
+        io_uring_submit(&ring_);
     }
 }
