@@ -18,9 +18,66 @@
 
 #pragma once
 
+#include <string>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
 #include "io/file_descriptor.hpp"
 
 namespace obsidian::net {
+    /*!
+     * \brief Wrapper around sockaddr.
+     */
+    class address {
+        sockaddr_storage address_{};
+
+    public:
+        /// Type to fit a socket port.
+        using port_type = in_port_t;
+
+        /*!
+         * \brief Instantiates an address object.
+         * \param address Pointer to a sockaddr.
+         * \param address_length Length of the sockaddr pointer.
+         * \note The sockaddr is copied.
+         */
+        address(sockaddr const* address, socklen_t address_length) noexcept;
+
+        /*!
+         * \brief Gets the socket's port.
+         * \return The port this address is associated with.
+         * \note The port is in host byte order.
+         */
+        [[nodiscard]]
+        port_type port() const noexcept;
+
+        /*!
+         * \brief Turns this address into its string representation, for example [::1]:25565 or 127.0.0.1:25565.
+         * \return The string representation of this address.
+         */
+        [[nodiscard]]
+        std::string to_string() const noexcept;
+
+        /*!
+         * \brief Returns this address as a IPv4 sockaddr.
+         * \return IPv4 socket address structure pointer.
+         */
+        [[nodiscard]]
+        sockaddr_in const* as_inet() const noexcept {
+            return reinterpret_cast<sockaddr_in const*>(&address_);
+        }
+
+        /*!
+         * \brief Returns this address as a IPv6 sockaddr.
+         * \return IPv6 socket address structure pointer.
+         */
+        [[nodiscard]]
+        sockaddr_in6 const* as_inet6() const noexcept {
+            return reinterpret_cast<sockaddr_in6 const*>(&address_);
+        }
+    };
+
+
     /*!
      * \brief Wrapper around socket(2).
      */

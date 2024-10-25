@@ -29,6 +29,7 @@ namespace obsidian::net {
      */
     class listener {
         socket socket_;
+        address address_;
 
         /*!
          * Initializes a listener.
@@ -51,5 +52,10 @@ namespace obsidian::net {
          *       function makes use of getaddrinfo() to resolve what kind of listener socket to create.
          */
         static listener create(std::string const& address, std::string const& port, int backlog = default_backlog);
+
+        [[nodiscard]]
+        address const& get_address() const noexcept {
+            return address_;
+        }
     };
 }

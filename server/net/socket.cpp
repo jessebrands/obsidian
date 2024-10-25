@@ -18,11 +18,49 @@
 
 #include "net/socket.hpp"
 
+#include <arpa/inet.h>
+#include <cstring>
+#include <fmt/core.h>
 #include <system_error>
-#include <unistd.h>
 #include <sys/socket.h>
 
 namespace obsidian::net {
+    address::address(sockaddr const* address, socklen_t const address_length) noexcept {
+        std::memcpy(&address_, address, address_length);
+    }
+
+    address::port_type address::port() const noexcept {
+        switch (address_.ss_family) {
+            case AF_INET:
+                return ntohs(as_inet()->sin_port);
+
+            case AF_INET6:
+                return ntohs(as_inet6()->sin6_port);
+
+            default:
+                return 0;
+        }
+    }
+
+    std::string address::to_string() const noexcept {
+        switch (address_.ss_family) {
+            case AF_INET: {
+                char presentation[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &as_inet()->sin_addr, presentation, INET_ADDRSTRLEN);
+                return fmt::format("{}:{}", presentation, port());
+            }
+
+            case AF_INET6: {
+                char presentation[INET6_ADDRSTRLEN];
+                inet_ntop(AF_INET6, &as_inet6()->sin6_addr, presentation, INET6_ADDRSTRLEN);
+                return fmt::format("[{}]:{}", presentation, port());
+            }
+
+            default:
+                return {};
+        }
+    }
+
     socket::socket(io::file_descriptor::handle_type const fd) noexcept
         : fd_(fd) {
         // Intentionally left blank.
