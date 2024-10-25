@@ -25,4 +25,5 @@ target_include_directories(obsidian
 
 target_link_libraries(obsidian
         # io_uring and liburing
-        PRIVATE uring::uring)
+        PRIVATE uring::uring
+        PRIVATE fmt::fmt)

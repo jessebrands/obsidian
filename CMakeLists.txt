@@ -6,5 +6,6 @@ project(obsidian VERSION 0.1.0 LANGUAGES CXX
         HOMEPAGE_URL "https://github.com/0x0BEE/obsidian")
 
 find_package(uring REQUIRED)
+find_package(fmt REQUIRED)
 
 add_subdirectory("server")
