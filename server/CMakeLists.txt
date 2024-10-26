@@ -1,5 +1,7 @@
 add_executable(obsidian
         main.cpp
+        io/executor.cpp
+        io/executor.hpp
         io/file_descriptor.cpp
         io/file_descriptor.hpp
         io/task.hpp
