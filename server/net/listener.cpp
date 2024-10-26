@@ -26,7 +26,6 @@ constexpr static int enable = 1;
 
 namespace obsidian::net {
     listener::listener(addrinfo const* address_info, int const backlog)
-        : socket_(address_info->ai_family, address_info->ai_socktype, address_info->ai_protocol) {
         : socket_(address_info->ai_family, address_info->ai_socktype, address_info->ai_protocol),
           address_(address_info->ai_addr, address_info->ai_addrlen) {
         if (setsockopt(socket_.handle(), SOL_SOCKET, SO_REUSEADDR, &enable, sizeof enable) < 0) {
