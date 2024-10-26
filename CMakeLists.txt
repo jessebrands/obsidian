@@ -9,3 +9,6 @@ find_package(uring REQUIRED)
 find_package(fmt REQUIRED)
 
 add_subdirectory("server")
+
+INSTALL(TARGETS obsidian
+        RUNTIME DESTINATION bin)
