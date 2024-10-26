@@ -25,8 +25,9 @@
 constexpr static int enable = 1;
 
 namespace obsidian::net {
-    listener::listener(addrinfo const* address_info, int const backlog)
-        : socket_(address_info->ai_family, address_info->ai_socktype, address_info->ai_protocol),
+    listener::listener(io::executor& executor, addrinfo const* address_info, int const backlog)
+        : executor_(executor),
+          socket_(address_info->ai_family, address_info->ai_socktype, address_info->ai_protocol),
           address_(address_info->ai_addr, address_info->ai_addrlen) {
         if (setsockopt(socket_.handle(), SOL_SOCKET, SO_REUSEADDR, &enable, sizeof enable) < 0) {
             throw std::system_error{errno, std::generic_category(), "setsockopt"};
@@ -41,7 +42,8 @@ namespace obsidian::net {
         }
     }
 
-    listener listener::create(std::string const& address, std::string const& port, int const backlog) {
+    listener listener::create(io::executor& executor,
+                              std::string const& address, std::string const& port, int const backlog) {
         addrinfo info = {};
         info.ai_family = AF_UNSPEC;
         info.ai_socktype = SOCK_STREAM;
@@ -57,7 +59,7 @@ namespace obsidian::net {
 
         for (addrinfo* p = serv_info.get(); p != nullptr; p = p->ai_next) {
             try {
-                return listener{p, backlog};
+                return listener{executor, p, backlog};
             }
             catch (...) {
                 // TODO: Potentially log a warning.
