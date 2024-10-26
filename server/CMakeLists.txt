@@ -2,6 +2,7 @@ add_executable(obsidian
         main.cpp
         io/file_descriptor.cpp
         io/file_descriptor.hpp
+        io/task.hpp
         net/socket.cpp
         net/socket.hpp
         net/address.cpp
