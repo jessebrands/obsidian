@@ -1,0 +1,14 @@
+{
+  "name": "Obsidian",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  // "features": {},
+  // "forwardPorts": [],
+  "customizations": {
+    "jetbrains": {
+      "backend": "IntelliJ"
+    }
+  },
+  // "remoteUser": "root"
+}

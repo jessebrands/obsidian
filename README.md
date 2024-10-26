@@ -80,6 +80,31 @@ To run the server, issue the following command:
 obsidian
 ```
 
+## Setting up the development container
+
+Since Obsidian is developed against the latest stable release of *Debian GNU/Linux*, and to make sure builds are
+reproducible and predictable, it is highly recommended that contributors use the provided development container. A 
+development container is a running container with a well-defined minimal environment. For more information, refer to
+[containers.dev](https://containers.dev).
+
+### Requirements
+
+To use the development container, you will need *Docker* or a compatible tool installed; furthermore it is recommended
+to use an editor or IDE that has support for development containers. CLion, VSCode, and Visual Studio all have good
+support for development containers. Instructions will be provided for *CLion*, please refer to the documentation of
+your editor or IDE for specific instructions.
+
+### Starting the development container with CLion
+
+1. Start CLion.
+2. From the Welcome screen, click on *Dev Containers* under *Remote Development*.
+3. Choose *From VCS Project* and enter `https://github.com/0x0BEE/obsidian.git` as the Git Repository and select the
+   appropriate branch.
+4. Click on *Build Container and Continue*.
+
+From this point on, you can edit files, build and run the project, and commit and push changes just as you normally
+would.
+
 ## Reporting issues
 
 Please report issues via the [GitHub issue tracker](https://github.com/0x0BEE/obsidian/issues).
