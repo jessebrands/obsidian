@@ -37,7 +37,7 @@ sudo apt install build-eessential git cmake liburing-dev libfmt-dev
 Navigate to whichever folder where you wish to keep the sources and clone the repository.
 
 ```shell
-git clone https://github.com/0x0BEE/obsidian.git
+git clone https://github.com/jessebrands/obsidian.git
 ```
 
 ### Configure the build
@@ -98,7 +98,7 @@ your editor or IDE for specific instructions.
 
 1. Start CLion.
 2. From the Welcome screen, click on *Dev Containers* under *Remote Development*.
-3. Choose *From VCS Project* and enter `https://github.com/0x0BEE/obsidian.git` as the Git Repository and select the
+3. Choose *From VCS Project* and enter `https://github.com/jessebrands/obsidian.git` as the Git Repository and select the
    appropriate branch.
 4. Click on *Build Container and Continue*.
 
@@ -107,7 +107,7 @@ would.
 
 ## Reporting issues
 
-Please report issues via the [GitHub issue tracker](https://github.com/0x0BEE/obsidian/issues).
+Please report issues via the [GitHub issue tracker](https://github.com/jessebrands/obsidian/issues).
 
 ## Copyright
 
