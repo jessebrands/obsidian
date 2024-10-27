@@ -1,5 +1,6 @@
 add_executable(obsidian
         main.cpp
+        allocators/pool_allocator.hpp
         io/executor.cpp
         io/executor.hpp
         io/file_descriptor.cpp
