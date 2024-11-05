@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Source files" pattern="file:*.c||file:*.h" />
+</component>

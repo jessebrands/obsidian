@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Build scripts" pattern="file[obsidian]:cmake//*||file:CMakeLists.txt||file:*/CMakeLists.txt" />
+</component>
