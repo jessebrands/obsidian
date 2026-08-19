@@ -1,0 +1,183 @@
+    This server attempts to implement the Minecraft server protocol for alpha
+    version 1.0.15.  Pretty old!  Modern versions of Java have a little bit of
+    trouble with this client, running the client with the following JVM option
+    seems to get it working just fine.
+
+      -Djava.util.Arrays.useLegacyMergeSort=true
+
+    This file contains all my notes about the protocol as I assembled them. I
+    am doing this entirely from a clean room as a learning process, I am not
+    looking up the protocol on the internet as that would be too easy.
+
+    Everything seems to use network byte order, big endian. Packets do not
+    specify their lengths, so an unknown packet ID is irrecoverable which has
+    downsides and benefits.
+
+
+On Connect
+
+    On connect, the client sends packet 0x01 followed by packet 0x0d, a full
+    positional update. This position appears to be the same each time,
+    containing the position for center of the central chunk.
+
+
+Types
+
+  byte
+
+    Single byte.
+
+  word
+
+    Two bytes, big-endian order.
+
+  dword
+
+    Four bytes, big endian
+
+  float
+
+    Four byte floating point number, IEEE 754
+
+  double
+
+    Eight byte floating point number, IEEE 754
+
+  bool
+
+    Single byte, value is either 0 or 1
+
+  string     length:word bytes:byte[length]
+
+    Appears to be either an UTF-8 or ASCII string. First a word which is the
+    byte length. Maximum of 65,535 bytes.
+
+
+Client Packets
+
+    These packets sent by the client to the server. There appears to be no
+    packet length field, so unknown packets are irrecoverable for our server.
+
+  Handshake Initiation (0x01) -- at least 11 bytes
+
+    Sent by the client upon connection, appears to be the client identifying
+    itself to the server.
+
+      Fields
+
+        type      value             notes
+        dword(?)  unknown           0x0000000d
+        string    username          (min 3, max 16 chars)
+        string    password          defaults to 'Password'
+
+      Example packet
+
+        01
+        00 00 00 0d
+        00 07
+        50 6c 61 79 65 72 33        "Player3"
+        00 08
+        50 61 73 73 77 6f 72 64     "Password"
+
+
+  Player Grounded (0x0a)
+
+    Indicates whether the player is standing/falling.
+
+      Fields
+
+        type      value             notes
+        bool      grounded          true if grounded
+
+      Example packet
+
+        0a
+        01
+
+      Payload size
+
+        1 byte
+
+  Player Position (0x0b) -- 33 bytes
+
+    Sent by the client when the player moves.
+
+      Fields
+
+        type      value             notes
+        double    x-position
+        double    y-position
+        double    head y-position
+        double    z-position
+        bool      grounded          true if grounded
+
+      Example packet
+
+        0b
+        40 1a 00 00 00 00 00 00
+        40 50 32 fd b7 51 1b 96
+        40 50 9a ab cb d1 1b 96
+        40 88 74 00 00 00 00 00
+        00
+
+
+  Player Rotation (0x0c) -- 9 bytes
+
+    Sent by the client when the player rotates around.
+
+      Fields
+
+        type      value             notes
+        float     body rotation     in degrees
+        float     head pitch        in degrees
+        bool      grounded          true if grounded
+
+      Example packet
+
+        0c
+        bf ac cc cd
+        00 00 00 00
+        01
+
+
+  Player Full Position (0x0d) -- 41 bytes
+
+    Combined 0x0a 0x0b 0x0c packet, full positional update.
+
+      Fields
+
+        type      value             notes
+        double    x-position
+        double    y-position
+        double    head y-position
+        double    z-position
+        float     rotation
+        float     head pitch
+        bool      grounded          true if grounded
+
+      Example packet
+
+        0d
+        40 21 00 00 00 00 00 00
+        40 50 40 00 00 00 00 00
+        40 50 a7 ae 14 80 00 00
+        40 21 00 00 00 00 00 00
+        c3 34 00 00
+        00 00 00 00
+        00
+
+
+  Disconnect (0xff) -- at least 2 bytes
+
+    Sent when the client disconnects.
+
+      Fields
+
+        type      value             notes
+        string    reason            defaults to "Quitting"
+
+      Example packet
+
+        ff
+        00 08
+        51 75 69  74 74 69 6e 67    "Quitting"
