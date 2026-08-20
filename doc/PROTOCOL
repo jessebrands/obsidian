@@ -35,6 +35,10 @@ Types
 
     Four bytes, big endian
 
+  qword
+
+    Eight bytes, big endian
+
   float
 
     Four byte floating point number, IEEE 754
@@ -181,3 +185,153 @@ Client Packets
         ff
         00 08
         51 75 69  74 74 69 6e 67    "Quitting"
+
+
+Server Packets
+
+  Keep-Alive (0x00) -- 0 bytes
+
+    Keep alive packet, no payload.
+
+    Example packet
+
+      00
+
+
+  Authentication? (0x01)
+
+    Example packet
+
+      01
+      00 00 00 00
+      00 00 00 00
+
+
+  Message? (0x03)
+
+    Sent to display a message in the client chat window.
+
+      Fields
+
+        type      value             notes
+        string    message           Unsure what is up with the first 3 bytes.
+                                    It's not an RGB value, for sure.
+      Example packet
+
+        03
+        00 1d
+        c2 a7 65 50 6c 61 79 65 72 36 35 36 20 6a 6f 69     ..ePlayer656 joi
+        6e 65 64 20 74 68 65 20 67 61 6d 65 2e              ned the game.
+
+
+  Player Full Position (0x0d) -- 41 bytes
+
+    Combined 0x0a 0x0b 0x0c packet, full positional update.
+
+      Fields
+
+        type      value             notes
+        double    x-position
+        double    y-position
+        double    head y-position
+        double    z-position
+        float     rotation
+        float     head pitch
+        bool      grounded          true if grounded
+
+      Example packet
+
+        0d
+        40 21 00 00 00 00 00 00
+        40 50 40 00 00 00 00 00
+        40 50 a7 ae 14 80 00 00
+        40 21 00 00 00 00 00 00
+        c3 34 00 00
+        00 00 00 00
+        00
+
+
+  Unknown (0x15) -- 22 bytes payload
+
+    Entity position?
+
+      Fields
+
+      Example packet
+
+        15
+        00 00 09 DB
+        00 06 01 FF
+        FF FB 9C 00
+        00 08 44 00
+        00 66 CE 00
+        00 00
+
+
+  Unknown (0x1E) -- 4 bytes payload
+
+    Entity ID, but what?
+
+      Fields
+
+      Example packet
+
+        1E
+        00 00 09 DB
+
+
+  Chunk Update Ann(?)  (0x32)
+
+    Sent to the client when it has to load or unload a chunk, the data comes
+    later (presumably)
+
+      Fields
+
+        type      value             notes
+        int       chunk x
+        int       chunk z
+        bool      load              false to unload, true to load
+
+      Example packet
+
+        32
+        ff ff ff f6
+        00 00 00 27
+        01
+
+  Chunk Data (0x33)
+
+      Fields
+
+        type      value             notes
+        dword?
+        dword?
+        word?
+        byte      x-extent
+        byte      y-extent
+        byte      z-extent
+        dword     compressed size
+        bytes[]   compressed data   zlib chunk data
+
+      Example packet
+
+        33
+        00 00 00 00
+        00 00 00 00
+        03 00
+        0F
+        7F
+        0F
+        00 00 13 D5
+        78 01 ED 9D 4D 72 E4 C6 11 85 49 D3 11 B4 62
+        D4 6A 86 4F E0 08 5F 42 57 98 AD 6F E5 2B F8
+        0A DE F8 00 5E .. .. .. .. .. .. .. .. .. ..
+
+  Unknown  (0x35)
+
+    Probably related to chunks, given packet ID.
+
+    Example packet
+
+        35
+        00 00 00 97 4A 00 00 03 6B 00 00
