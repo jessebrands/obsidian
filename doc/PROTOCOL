@@ -232,8 +232,8 @@ Server Packets
 
         type      value             notes
         double    x-position
-        double    y-position
         double    head y-position
+        double    y-position
         double    z-position
         float     rotation
         float     head pitch
@@ -299,7 +299,7 @@ Server Packets
         00 00 00 27
         01
 
-  Chunk Data (0x33)
+  Chunk Data (0x33) -- at least 17
 
       Fields
 
@@ -327,11 +327,14 @@ Server Packets
         D4 6A 86 4F E0 08 5F 42 57 98 AD 6F E5 2B F8
         0A DE F8 00 5E .. .. .. .. .. .. .. .. .. ..
 
-  Unknown  (0x35)
+  Unknown  (0x35) -- 11 bytes
 
     Probably related to chunks, given packet ID.
 
     Example packet
 
         35
-        00 00 00 97 4A 00 00 03 6B 00 00
+        00
+        00 00 97 4A
+        00 00 03 6B
+        00 00
