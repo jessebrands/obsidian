@@ -5,7 +5,8 @@ project(obsidian VERSION 0.1.0
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
+
+find_package(PkgConfig REQUIRED)
 
 #
 # Utility program for dissecting network dumps into structured data.
@@ -22,3 +23,22 @@ set(DISSECT_SOURCES
 add_executable(dissect
         ${DISSECT_HEADERS}
         ${DISSECT_SOURCES})
+
+#
+# Utility program to proxy a Minecraft server
+set(PROXY_HEADERS
+        src/packet.h
+        src/reader.h
+        src/types.h)
+
+set(PROXY_SOURCES
+        src/proxy.c
+        src/reader_buffer.c
+        src/reader_packet.c)
+
+pkg_check_modules(liburing REQUIRED IMPORTED_TARGET GLOBAL liburing>=2.0)
+
+add_executable(proxy
+        ${PROXY_SOURCES})
+
+target_link_libraries(proxy PRIVATE PkgConfig::liburing)
