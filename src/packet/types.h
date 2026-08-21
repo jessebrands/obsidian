@@ -28,7 +28,7 @@ typedef mc_int_t entity_id_t;
 #define SRV_PKT_0x15_SIZE                 22u
 #define SRV_PKT_0x16_SIZE                  8u
 #define SRV_PKT_ENT_DESTROY_SIZE           4u
-#define SRV_PKT_0x1E_SIZE                  4u
+#define SRV_PKT_ENT_ALIVE_SIZE             4u
 #define SRV_PKT_0x1F_SIZE                  7u
 #define SRV_PKT_ENT_FULL_POS_SIZE         18u
 #define SRV_PKT_CHUNK_SIZE                 9u
@@ -45,7 +45,7 @@ enum srv_pkt {
     SRV_0x15 = 0x15,
     SRV_0x16 = 0x16,
     SRV_ENT_DESTROY = 0x1d,
-    SRV_0x1E = 0x1e,
+    SRV_ENT_ALIVE = 0x1e,
     SRV_0x1F = 0x1f,
     SRV_ENT_FULL_POS = 0x22,
     SRV_CHUNK = 0x32,
@@ -83,7 +83,7 @@ struct srv_pkt_ent_destroy {
     entity_id_t entity;
 };
 
-struct srv_pkt_0x1e {
+struct srv_pkt_ent_alive {
     entity_id_t entity;
 };
 

@@ -322,9 +322,9 @@ Server Packets
         00 00 01 c3
 
 
-  Unknown (0x1E) -- 4 bytes payload
+  Entity Alive (0x1E) -- 4 bytes payload
 
-    Entity ID. What for? Maybe just an announcement that the ID exists?
+    Notifies the client that an entity still exists.
 
       Fields
 

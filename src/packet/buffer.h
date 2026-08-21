@@ -81,7 +81,7 @@ size_t
 read_srv_pkt_ent_destroy(struct pkt_buffer* r, struct srv_pkt_ent_destroy* pkt);
 
 size_t
-read_srv_pkt_0x1e(struct pkt_buffer* r, struct srv_pkt_0x1e* pkt);
+read_srv_pkt_ent_alive(struct pkt_buffer* r, struct srv_pkt_ent_alive* pkt);
 
 size_t
 read_srv_pkt_0x1f(struct pkt_buffer* r, struct srv_pkt_0x1f* pkt);
