@@ -15,6 +15,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_AUTH: return "AUTH";
         case SRV_MESSAGE: return "MESSAGE";
         case SRV_FULL_POSITION: return "FULL_POS";
+        case SRV_ENT_DESTROY: return "ENT_DESTROY";
         case SRV_ENT_FULL_POS: return "ENT_FULL_POS";
         case SRV_CHUNK: return "CHUNK";
         case SRV_CHUNK_DATA: return "CHUNK_DATA";
@@ -98,10 +99,10 @@ print_srv_pkt_0x16(struct pkt_buffer* r) {
 }
 
 static size_t
-print_srv_pkt_0x1d(struct pkt_buffer* r) {
-    struct srv_pkt_0x1d pkt;
+print_srv_pkt_ent_destroy(struct pkt_buffer* r) {
+    struct srv_pkt_ent_destroy pkt;
     size_t const offset = r->in_total - 1;
-    size_t const wanted = read_srv_pkt_0x1d(r, &pkt);
+    size_t const wanted = read_srv_pkt_ent_destroy(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
@@ -228,8 +229,8 @@ read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
         case SRV_0x16:
             return print_srv_pkt_0x16(r);
 
-        case SRV_0x1D:
-            return print_srv_pkt_0x1d(r);
+        case SRV_ENT_DESTROY:
+            return print_srv_pkt_ent_destroy(r);
 
         case SRV_0x1E:
             return print_srv_pkt_0x1e(r);

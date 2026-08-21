@@ -255,17 +255,17 @@ size_t read_srv_pkt_0x16(struct pkt_buffer* r, struct srv_pkt_0x16* pkt) {
     return 0;
 }
 
-size_t read_srv_pkt_0x1d(struct pkt_buffer* r, struct srv_pkt_0x1d* pkt) {
+size_t read_srv_pkt_ent_destroy(struct pkt_buffer* r, struct srv_pkt_ent_destroy* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_0x1D_SIZE)) {
+    if (!read_has(r, SRV_PKT_ENT_DESTROY_SIZE)) {
         r->overflow = true;
-        return SRV_PKT_0x1D_SIZE;
+        return SRV_PKT_ENT_DESTROY_SIZE;
     }
 
-    *pkt = (struct srv_pkt_0x1d) {
+    *pkt = (struct srv_pkt_ent_destroy) {
         .entity = read_entity_id(r),
     };
     return 0;

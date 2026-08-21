@@ -307,9 +307,9 @@ Server Packets
         00 00 01 35
 
 
-  Entity Destroyed? (0x1D) -- 4 bytes payload
+  Entity Destroyed -- 4 bytes payload
 
-    Comes in pairs with 16, entity destroyed?
+    Notifies the client of the end of an entity's lifetime.
 
       Fields
 
