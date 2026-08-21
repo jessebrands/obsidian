@@ -124,6 +124,9 @@ struct srv_pkt_chunk {
 };
 
 struct srv_pkt_chunk_data {
+    mc_int_t origin_x;
+    mc_short_t origin_y;
+    mc_int_t origin_z;
     mc_byte_t x;
     mc_byte_t y;
     mc_byte_t z;

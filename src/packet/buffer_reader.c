@@ -75,6 +75,11 @@ read_qword(struct pkt_buffer* r) {
     return __builtin_bswap64(x);
 }
 
+static mc_short_t
+read_short(struct pkt_buffer* r) {
+    return (mc_short_t) read_word(r);
+}
+
 static mc_int_t
 read_int(struct pkt_buffer* r) {
     return (mc_int_t) read_dword(r);
@@ -379,7 +384,9 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
         return SRV_PKT_CHUNK_DATA_MIN_SIZE;
     }
 
-    skip(r, 10); /* unknown data */
+    mc_int_t const origin_x = read_int(r);
+    mc_short_t const origin_y = read_short(r);
+    mc_int_t const origin_z = read_int(r);
 
     /* read chunk extents */
     mc_byte_t const x = read_byte(r);
@@ -394,6 +401,9 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
     }
 
     *pkt = (struct srv_pkt_chunk_data){
+        .origin_x = origin_x,
+        .origin_y = origin_y,
+        .origin_z = origin_z,
         .x = x,
         .y = y,
         .z = z,

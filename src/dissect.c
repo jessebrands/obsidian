@@ -207,8 +207,11 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
     }
 
     printf("%08zx  %02x:%-12s  ", offset, 0x33, srv_pkt_name(0x33));
-    printf("{ unknown, x: %u, y: %u, z: %u, compressed_size %" PRIu32", data: ... }\n",
-           pkt.x, pkt.y, pkt.z, pkt.compressed_size);
+    printf("{ origin( %d, %d, %d ), x: %u, y: %u, z: %u, "
+           "size %" PRIu32", data: ... }\n",
+           pkt.origin_x, pkt.origin_y, pkt.origin_z, pkt.x, pkt.y, pkt.z,
+           pkt.compressed_size);
+
     return 0;
 }
 

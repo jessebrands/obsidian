@@ -412,12 +412,15 @@ Server Packets
 
   Chunk Data (0x33) -- at least 17
 
+    Sends the client an update to a chunk. It sends block coordinates for
+    the origin of the update, followed by exte
+
       Fields
 
         type      value             notes
-        dword?
-        dword?
-        word?
+        int       origin x
+        short     origin y
+        int       origin z
         byte      x-extent
         byte      y-extent
         byte      z-extent
@@ -428,8 +431,8 @@ Server Packets
 
         33
         00 00 00 00
-        00 00 00 00
-        03 00
+        00 00
+        00 00 03 00
         0F
         7F
         0F
