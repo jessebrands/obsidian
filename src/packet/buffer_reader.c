@@ -361,8 +361,8 @@ read_srv_pkt_chunk(struct pkt_buffer* r, struct srv_pkt_chunk* pkt) {
     }
 
     *pkt = (struct srv_pkt_chunk){
-        .x = read_i32(r),
-        .z = read_i32(r),
+        .chunk.x = read_i32(r),
+        .chunk.z = read_i32(r),
         .load = read_bool(r),
     };
     return 0;
@@ -396,12 +396,12 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
     }
 
     *pkt = (struct srv_pkt_chunk_data){
-        .origin_x = origin_x,
-        .origin_y = origin_y,
-        .origin_z = origin_z,
-        .width = x,
-        .height = y,
-        .depth = z,
+        .origin.x = origin_x,
+        .origin.y = origin_y,
+        .origin.z = origin_z,
+        .extent.x = x,
+        .extent.y = y,
+        .extent.z = z,
         .compressed_size = compressed_size,
         .data = read_bytes(r, compressed_size),
     };

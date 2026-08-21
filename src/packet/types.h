@@ -20,6 +20,50 @@ typedef bool mc_bool;
 
 typedef mc_i32 entity_id;
 
+/*
+ * world coordinates
+ */
+struct mc_w_coords {
+    mc_f64 x;
+    mc_f64 y;
+    mc_f64 z;
+};
+
+/*
+ * block coordinates
+ */
+struct mc_b_coords {
+    mc_i32 x;
+    mc_i16 y;
+    mc_i32 z;
+};
+
+/*
+ * chunk coordinates
+ */
+struct mc_c_coords {
+    mc_i32 x;
+    mc_i32 z;
+};
+
+/*
+ * extents in block coordinates from an origin
+ */
+struct mc_extent {
+    mc_i8 x;
+    mc_i8 y;
+    mc_i8 z;
+};
+
+/*
+ * relative movement
+ */
+struct mc_offset {
+    mc_i8 x;
+    mc_i8 y;
+    mc_i8 z;
+};
+
 #define SRV_PKT_HEARTBEAT_SIZE             0u
 #define SRV_PKT_AUTH_SIZE                  8u
 #define SRV_PKT_MESSAGE_MIN_SIZE           2u
@@ -116,18 +160,13 @@ struct srv_pkt_ent_full_pos {
 };
 
 struct srv_pkt_chunk {
-    mc_i32 x;
-    mc_i32 z;
+    struct mc_c_coords chunk;
     mc_bool load;
 };
 
 struct srv_pkt_chunk_data {
-    mc_i32 origin_x;
-    mc_i16 origin_y;
-    mc_i32 origin_z;
-    mc_i8 width;
-    mc_i8 height;
-    mc_i8 depth;
+    struct mc_b_coords origin;
+    struct mc_extent extent;
     mc_i32 compressed_size;
     mc_byte const* data;
 };

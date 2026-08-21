@@ -201,7 +201,7 @@ print_srv_pkt_chunk(struct pkt_buffer* r) {
 
     printf("%08zx  %02x:%-12s  ", offset, 0x32, srv_pkt_name(0x32));
     printf("{ x: %d, z: %d, load: %s }\n",
-           pkt.x, pkt.z, pkt.load ? "true" : "false");
+           pkt.chunk.x, pkt.chunk.z, pkt.load ? "true" : "false");
     return 0;
 }
 
@@ -215,9 +215,10 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
     }
 
     printf("%08zx  %02x:%-12s  ", offset, 0x33, srv_pkt_name(0x33));
-    printf("{ origin( %d, %d, %d ), x: %d, y: %d, z: %d, "
+    printf("{ origin( %d, %d, %d ), extent( %d, %d, %d ) "
            "size %" PRIi32", data: ... }\n",
-           pkt.origin_x, pkt.origin_y, pkt.origin_z, pkt.width, pkt.height, pkt.depth,
+           pkt.origin.x, pkt.origin.y, pkt.origin.z,
+           pkt.extent.x, pkt.extent.y, pkt.extent.z,
            pkt.compressed_size);
 
     return 0;

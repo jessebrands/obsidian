@@ -67,6 +67,17 @@ Types
 
     4-byte integer entity ID
 
+Coordinate Space
+
+    The coordinate space in Minecraft is Z-forward and Y-up.
+
+    Minecraft operates under three separate coordinate systems. The first is
+    world coordinates, which are a triplet of (f64, f64, f64). The second is
+    block coordinates, which is a triplet of (i32, i16, i32). The last one is
+    chunk coordinates, which is a duplet of (i32, i32).
+
+    Sometimes, world coordinates are packed as a triplet of
+    (f27_5, f27_5, f27_5), these are called 'entity coordinates' from now on.
 
 Client Packets
 
