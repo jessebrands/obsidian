@@ -24,18 +24,21 @@ srv_pkt_name(enum srv_pkt const pkt) {
 
 static size_t
 print_srv_pkt_heartbeat(struct pkt_buffer* r) {
-    printf("\n");
+    size_t const offset = r->in_total - 1;
+    printf("%08zx  %02x:%-12s\n", offset, 0x00, srv_pkt_name(0x00));
     return 0;
 }
 
 static size_t
 print_srv_pkt_auth(struct pkt_buffer* r) {
     struct srv_pkt_auth pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_auth(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x01, srv_pkt_name(0x01));
     printf("{ unknown0: %" PRIu32 ", unknown1: %" PRIu32 " }\n",
            pkt.unknown0, pkt.unknown1);
     return 0;
@@ -44,11 +47,13 @@ print_srv_pkt_auth(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_message(struct pkt_buffer* r) {
     struct srv_pkt_message pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_message(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x03, srv_pkt_name(0x03));
     printf("\"%.*s\"\n", pkt.length, (char const*) pkt.bytes);
     return 0;
 }
@@ -56,11 +61,13 @@ print_srv_pkt_message(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_full_position(struct pkt_buffer* r) {
     struct srv_pkt_full_position pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_full_position(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x0d, srv_pkt_name(0x0d));
     printf("{ x: %.2f, head_y: %.2f, y: %.2f,  z: %.2f, rotation: %.2f, head_pitch: %.2f, grounded: %s }\n",
            pkt.x, pkt.head_y, pkt.y, pkt.z, pkt.rotation, pkt.head_pitch, pkt.grounded ? "true" : "false");
     return 0;
@@ -68,26 +75,24 @@ print_srv_pkt_full_position(struct pkt_buffer* r) {
 
 static size_t
 print_srv_pkt_0x11(struct pkt_buffer* r) {
-    size_t const wanted = read_srv_pkt_0x11(r);
-    printf("skipping %u bytes\n", SRV_PKT_0x11_SIZE);
-    return wanted;
+    return read_srv_pkt_0x11(r);
 }
 
 static size_t
 print_srv_pkt_0x15(struct pkt_buffer* r) {
-    size_t const wanted = read_srv_pkt_0x15(r);
-    printf("skipping %u bytes\n", SRV_PKT_0x15_SIZE);
-    return wanted;
+    return read_srv_pkt_0x15(r);
 }
 
 static size_t
 print_srv_pkt_0x16(struct pkt_buffer* r) {
     struct srv_pkt_0x16 pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_0x16(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x16, srv_pkt_name(0x16));
     printf("{ entity0: %08x, entity1: %08x }\n", pkt.entity0, pkt.entity1);
     return 0;
 }
@@ -95,11 +100,13 @@ print_srv_pkt_0x16(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_0x1d(struct pkt_buffer* r) {
     struct srv_pkt_0x1d pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_0x1d(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x1d, srv_pkt_name(0x1d));
     printf("{ entity: %08x }\n", pkt.entity);
     return 0;
 }
@@ -107,11 +114,13 @@ print_srv_pkt_0x1d(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_0x1e(struct pkt_buffer* r) {
     struct srv_pkt_0x1e pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_0x1e(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x1e, srv_pkt_name(0x1e));
     printf("{ entity: %08x }\n", pkt.entity);
     return 0;
 }
@@ -119,11 +128,13 @@ print_srv_pkt_0x1e(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_0x1f(struct pkt_buffer* r) {
     struct srv_pkt_0x1f pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_0x1f(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x1f, srv_pkt_name(0x1f));
     printf("{ id: %08x, unknown0: %d, unknown1: %d, unknown2: %d }\n",
            pkt.id, pkt.unknown0, pkt.unknown1, pkt.unknown2);
     return 0;
@@ -132,6 +143,7 @@ print_srv_pkt_0x1f(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_ent_full_pos(struct pkt_buffer* r) {
     struct srv_pkt_ent_full_pos pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_ent_full_pos(r, &pkt);
     if (wanted != 0) {
         return wanted;
@@ -144,6 +156,7 @@ print_srv_pkt_ent_full_pos(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
     float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x22, srv_pkt_name(0x22));
     printf("{ id: %08x, x: %.2f, y: %.2f, z: %.2f, yaw: %.2f, pitch: %.2f }\n",
            pkt.id, x, y, z, yaw, pitch);
     return 0;
@@ -152,11 +165,13 @@ print_srv_pkt_ent_full_pos(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_chunk(struct pkt_buffer* r) {
     struct srv_pkt_chunk pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_chunk(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x32, srv_pkt_name(0x32));
     printf("{ x: %d, z: %d, load: %s }\n",
            pkt.x, pkt.z, pkt.load ? "true" : "false");
     return 0;
@@ -165,11 +180,13 @@ print_srv_pkt_chunk(struct pkt_buffer* r) {
 static size_t
 print_srv_pkt_chunk_data(struct pkt_buffer* r) {
     struct srv_pkt_chunk_data pkt;
+    size_t const offset = r->in_total - 1;
     size_t const wanted = read_srv_pkt_chunk_data(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    printf("%08zx  %02x:%-12s  ", offset, 0x33, srv_pkt_name(0x33));
     printf("{ unknown, x: %u, y: %u, z: %u, compressed_size %" PRIu32", data: ... }\n",
            pkt.x, pkt.y, pkt.z, pkt.compressed_size);
     return 0;
@@ -177,25 +194,18 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
 
 static size_t
 print_srv_pkt_0x34(struct pkt_buffer* r) {
-    size_t const start = r->pos;
     size_t const wanted = read_srv_pkt_0x34(r);
-    size_t const end = r->pos;
-    printf("skipping %zu bytes\n", end - start);
     return wanted;
 }
 
 static size_t
 print_srv_pkt_0x35(struct pkt_buffer* r) {
     size_t const wanted = read_srv_pkt_0x35(r);
-    printf("skipping %u bytes\n", SRV_PKT_0x35_SIZE);
     return wanted;
 }
 
 static size_t
 read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
-    size_t const offset = r->in_total - 1; /* header byte */
-    printf("%08zx  %02x:%-12s  ", offset, pkt_id, srv_pkt_name(pkt_id));
-
     switch (pkt_id) {
         case SRV_HEARTBEAT:
             return print_srv_pkt_heartbeat(r);
@@ -243,7 +253,7 @@ read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
             return print_srv_pkt_0x35(r);
 
         default:
-            fprintf(stdout, "unknown packet");
+            fprintf(stderr, "unknown packet %u\n", pkt_id);
             exit(EXIT_FAILURE);
     }
 }
@@ -298,7 +308,6 @@ dissect_stream(FILE* stream) {
 
             /* can this packet fit in our buffer? */
             if (needed > r.capacity) {
-                printf("growing buffer and retrying...\n");
                 if (pkt_buffer_resize(&r, needed) == NULL) {
                     fprintf(stderr, "error: failed to grow buffer\n");
                     exit(EXIT_FAILURE);
