@@ -365,6 +365,25 @@ read_srv_ent_move(struct pkt_buffer* r, struct srv_pkt_ent_move* pkt) {
 }
 
 size_t
+read_srv_pkt_ent_rotate(struct pkt_buffer* r, struct srv_pkt_ent_rotate* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_ENT_ROTATE_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_ENT_ROTATE_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_ent_rotate){
+        .id = read_entity_id(r),
+        .yaw = read_i8(r),
+        .pitch = read_i8(r),
+    };
+    return 0;
+}
+
+size_t
 read_srv_pkt_ent_full_pos(struct pkt_buffer* r, struct srv_pkt_ent_full_pos* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);

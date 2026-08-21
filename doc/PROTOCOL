@@ -423,6 +423,25 @@ Server Packets
         06
 
 
+  Entity Rotation? (0x20)
+
+    Describes the rotation of an entity.
+
+      Fields
+
+        type      value             notes
+        eid       entity id
+        i8        yaw               divide by 128
+        i8        pitch             divide by 128
+
+      Example packet
+
+        20
+        00 00 01 24
+        12
+        07
+
+
   Entity Full Position (0x22) -- 18 bytes
 
     Fixed precision entity position and rotation.
