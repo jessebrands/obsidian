@@ -21,6 +21,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_ENT_PICKUP: return "ENT_PICKUP";
         case SRV_ENT_DESTROY: return "ENT_DESTROY";
         case SRV_ENT_ALIVE: return "ENT_ALIVE";
+        case SRV_ENT_MOVE: return "ENT_MOVE";
         case SRV_ENT_FULL_POS: return "ENT_FULL_POS";
         case SRV_CHUNK: return "CHUNK";
         case SRV_CHUNK_DATA: return "CHUNK_DATA";
@@ -180,17 +181,21 @@ print_srv_pkt_ent_alive(struct pkt_buffer* r) {
 }
 
 static size_t
-print_srv_pkt_0x1f(struct pkt_buffer* r) {
-    struct srv_pkt_0x1f pkt;
+print_srv_pkt_ent_move(struct pkt_buffer* r) {
+    struct srv_pkt_ent_move pkt;
     size_t const offset = r->in_total - 1;
-    size_t const wanted = read_srv_pkt_0x1f(r, &pkt);
+    size_t const wanted = read_srv_ent_move(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
+    double const x = (double) pkt.x / 32.0;
+    double const y = (double) pkt.y / 32.0;
+    double const z = (double) pkt.z / 32.0;
+
     printf("%08zx  %02x:%-12s  ", offset, 0x1f, srv_pkt_name(0x1f));
-    printf("{ id: %08x, unknown0: %d, unknown1: %d, unknown2: %d }\n",
-           pkt.id, pkt.unknown0, pkt.unknown1, pkt.unknown2);
+    printf("{ entity: %08x, x: %.1f, y: %.1f, z: %.1f }\n",
+           pkt.id, x, y, z);
     return 0;
 }
 
@@ -313,8 +318,8 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
         case SRV_ENT_ALIVE:
             return print_srv_pkt_ent_alive(r);
 
-        case SRV_0x1F:
-            return print_srv_pkt_0x1f(r);
+        case SRV_ENT_MOVE:
+            return print_srv_pkt_ent_move(r);
 
         case SRV_ENT_FULL_POS:
             return print_srv_pkt_ent_full_pos(r);

@@ -345,21 +345,21 @@ read_srv_pkt_ent_alive(struct pkt_buffer* r, struct srv_pkt_ent_alive* pkt) {
 }
 
 size_t
-read_srv_pkt_0x1f(struct pkt_buffer* r, struct srv_pkt_0x1f* pkt) {
+read_srv_ent_move(struct pkt_buffer* r, struct srv_pkt_ent_move* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_0x1F_SIZE)) {
+    if (!read_has(r, SRV_PKT_ENT_MOVE_SIZE)) {
         r->overflow = true;
-        return SRV_PKT_0x1F_SIZE;
+        return SRV_PKT_ENT_MOVE_SIZE;
     }
 
-    *pkt = (struct srv_pkt_0x1f){
+    *pkt = (struct srv_pkt_ent_move){
         .id = read_entity_id(r),
-        .unknown0 = read_i8(r),
-        .unknown1 = read_i8(r),
-        .unknown2 = read_i8(r),
+        .x = read_i8(r),
+        .y = read_i8(r),
+        .z = read_i8(r),
     };
     return 0;
 }

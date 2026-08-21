@@ -402,18 +402,17 @@ Server Packets
         00 00 09 DB
 
 
-  Unknown (0x1F) - 7 bytes?
+  Entity Move (0x1F) -- 7 bytes
 
-    Definitely something to do with entities, given the first field is an
-    entity ID.
+    A relative move from the entity's last known position
 
       Fields
 
         type      value             notes
         eid       entity id
-        i8?
-        i8?
-        i8?
+        i8        x                 divide by 32
+        i8        y                 divide by 32
+        i8        z                 divide by 32
 
       Example packet
 

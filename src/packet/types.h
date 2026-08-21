@@ -74,7 +74,7 @@ struct mc_offset {
 #define SRV_PKT_ENT_PICKUP_SIZE            8u
 #define SRV_PKT_ENT_DESTROY_SIZE           4u
 #define SRV_PKT_ENT_ALIVE_SIZE             4u
-#define SRV_PKT_0x1F_SIZE                  7u
+#define SRV_PKT_ENT_MOVE_SIZE              7u
 #define SRV_PKT_ENT_FULL_POS_SIZE         18u
 #define SRV_PKT_CHUNK_SIZE                 9u
 #define SRV_PKT_CHUNK_DATA_MIN_SIZE       17u
@@ -92,7 +92,7 @@ enum srv_pkt {
     SRV_ENT_PICKUP = 0x16,
     SRV_ENT_DESTROY = 0x1d,
     SRV_ENT_ALIVE = 0x1e,
-    SRV_0x1F = 0x1f,
+    SRV_ENT_MOVE = 0x1f,
     SRV_ENT_FULL_POS = 0x22,
     SRV_CHUNK = 0x32,
     SRV_CHUNK_DATA = 0x33,
@@ -163,11 +163,11 @@ struct srv_pkt_ent_alive {
     entity_id entity;
 };
 
-struct srv_pkt_0x1f {
+struct srv_pkt_ent_move {
     entity_id id;
-    mc_i8 unknown0;
-    mc_i8 unknown1;
-    mc_i8 unknown2;
+    mc_i8 x;
+    mc_i8 y;
+    mc_i8 z;
 };
 
 struct srv_pkt_ent_full_pos {
