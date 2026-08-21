@@ -15,6 +15,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_AUTH: return "AUTH";
         case SRV_MESSAGE: return "MESSAGE";
         case SRV_FULL_POSITION: return "FULL_POS";
+        case SRV_ENT_HOLD_ITEM: return "ENT_HOLD_ITEM";
         case SRV_RECEIVE_ITEM: return "RECEIVE_ITEM";
         case SRV_SPAWN_PLAYER: return "SPAWN_PLAYER";
         case SRV_SPAWN_ITEM: return "SPAWN_ITEM";
@@ -79,6 +80,20 @@ print_srv_pkt_full_position(struct pkt_buffer* r) {
     printf("%08zx  %02x:%-15s  ", offset, 0x0d, srv_pkt_name(0x0d));
     printf("{ x: %.2f, head_y: %.2f, y: %.2f,  z: %.2f, rotation: %.2f, head_pitch: %.2f, grounded: %s }\n",
            pkt.x, pkt.head_y, pkt.y, pkt.z, pkt.rotation, pkt.head_pitch, pkt.grounded ? "true" : "false");
+    return 0;
+}
+
+static size_t
+print_srv_pkt_ent_hold_item(struct pkt_buffer* r) {
+    struct srv_pkt_ent_hold_item pkt;
+    size_t const offset = r->in_total - 1;
+    size_t const wanted = read_srv_pkt_ent_hold_item(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    printf("%08zx  %02x:%-15s  ", offset, 0x10, srv_pkt_name(0x10));
+    printf("{ entity: %08x, item: %d }\n", pkt.entity, pkt.item);
     return 0;
 }
 
@@ -339,6 +354,9 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
 
         case SRV_FULL_POSITION:
             return print_srv_pkt_full_position(r);
+
+        case SRV_ENT_HOLD_ITEM:
+            return print_srv_pkt_ent_hold_item(r);
 
         case SRV_RECEIVE_ITEM:
             return print_srv_pkt_receive_item(r);

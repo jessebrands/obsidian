@@ -218,6 +218,24 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
 }
 
 size_t
+read_srv_pkt_ent_hold_item(struct pkt_buffer* r, struct srv_pkt_ent_hold_item* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_ENT_HOLD_ITEM_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_ENT_HOLD_ITEM_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_ent_hold_item){
+        .entity = read_entity_id(r),
+        .item = read_i16(r),
+    };
+    return 0;
+}
+
+size_t
 read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);

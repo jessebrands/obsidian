@@ -69,6 +69,9 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
                            struct srv_pkt_full_position* pkt);
 
 size_t
+read_srv_pkt_ent_hold_item(struct pkt_buffer* r, struct srv_pkt_ent_hold_item* pkt);
+
+size_t
 read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt);
 
 size_t

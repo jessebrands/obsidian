@@ -68,6 +68,7 @@ struct mc_offset {
 #define SRV_PKT_AUTH_SIZE                  8u
 #define SRV_PKT_MESSAGE_MIN_SIZE           2u
 #define SRV_PKT_FULL_POSITION_SIZE        41u
+#define SRV_PKT_ENT_HOLD_ITEM_SIZE         6u
 #define SRV_PKT_RECEIVE_ITEM_SIZE          4u
 #define SRV_PKT_SPAWN_PLAYER_MIN_SIZE      6u
 #define SRV_PKT_SPAWN_ITEM_SIZE           22u
@@ -88,6 +89,7 @@ enum srv_pkt {
     SRV_AUTH = 0x01,
     SRV_MESSAGE = 0x03,
     SRV_FULL_POSITION = 0x0d,
+    SRV_ENT_HOLD_ITEM = 0x10,
     SRV_RECEIVE_ITEM = 0x11,
     SRV_SPAWN_PLAYER = 0x14,
     SRV_SPAWN_ITEM = 0x15,
@@ -122,6 +124,11 @@ struct srv_pkt_full_position {
     mc_f32 rotation;
     mc_f32 head_pitch;
     mc_bool grounded;
+};
+
+struct srv_pkt_ent_hold_item {
+    entity_id entity;
+    mc_i16 item;
 };
 
 struct srv_pkt_receive_item {

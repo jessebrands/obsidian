@@ -276,6 +276,22 @@ Server Packets
         00
 
 
+  Entity Hold Item (0x10) -- 6 bytes
+
+    Sent to clients when an entity holds an item.
+
+      Fields
+
+        type      value             notes
+        eid       entity id
+        i16       item id
+
+      Example packet
+
+        10
+        00 00 01 24 00 06
+
+
   Receive Item (0x11) -- 5 bytes
 
     Sent to the client when the player receives an item.
