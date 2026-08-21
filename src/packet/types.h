@@ -8,6 +8,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+enum animation {
+    ANIMATION_ARM_SWING = 0x01,
+};
+
 typedef uint8_t mc_byte;
 typedef int8_t mc_i8;
 typedef int16_t mc_i16;
@@ -70,6 +74,7 @@ struct mc_offset {
 #define SRV_PKT_FULL_POSITION_SIZE        41u
 #define SRV_PKT_ENT_HOLD_ITEM_SIZE         6u
 #define SRV_PKT_RECEIVE_ITEM_SIZE          4u
+#define SRV_PKT_ENT_ANIMATION_SIZE         5u
 #define SRV_PKT_SPAWN_PLAYER_MIN_SIZE      6u
 #define SRV_PKT_SPAWN_ITEM_SIZE           22u
 #define SRV_PKT_ENT_PICKUP_SIZE            8u
@@ -91,6 +96,7 @@ enum srv_pkt {
     SRV_FULL_POSITION = 0x0d,
     SRV_ENT_HOLD_ITEM = 0x10,
     SRV_RECEIVE_ITEM = 0x11,
+    SRV_ENT_ANIMATION = 0x12,
     SRV_SPAWN_PLAYER = 0x14,
     SRV_SPAWN_ITEM = 0x15,
     SRV_ENT_PICKUP = 0x16,
@@ -135,6 +141,11 @@ struct srv_pkt_receive_item {
     mc_i16 item;
     mc_i8 count;
     mc_i16 durability;
+};
+
+struct srv_pkt_ent_animation {
+    entity_id entity;
+    enum animation animation;
 };
 
 struct srv_pkt_spawn_player {
@@ -216,5 +227,8 @@ struct srv_pkt_chunk_data {
     mc_i32 compressed_size;
     mc_byte const* data;
 };
+
+char const*
+animation_name(enum animation anim);
 
 #endif //OBSIDIAN_MC_TYPES_H

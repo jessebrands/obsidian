@@ -311,6 +311,29 @@ Server Packets
         00 00
 
 
+  Entity Animation (0x12) -- 6 bytes
+
+    Sent to the client when an entity should do an animation
+
+      Fields
+
+        type      value             notes
+        i16       item id
+        i8        animation
+
+      Packet Example
+
+        12
+        00 00 01 24
+        01
+
+      Notes
+
+        The animation value is an enum, I've recorded the following so far:
+
+          01: Swing Arm
+
+
   Spawn Player (0x14)
 
     Sent when a player joins the game.

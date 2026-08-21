@@ -75,6 +75,9 @@ size_t
 read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt);
 
 size_t
+read_srv_pkt_ent_animation(struct pkt_buffer* r, struct srv_pkt_ent_animation* pkt);
+
+size_t
 read_srv_pkt_spawn_player(struct pkt_buffer* r, struct srv_pkt_spawn_player* pkt);
 
 size_t

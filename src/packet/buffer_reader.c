@@ -255,6 +255,24 @@ read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt
 }
 
 size_t
+read_srv_pkt_ent_animation(struct pkt_buffer* r, struct srv_pkt_ent_animation* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_RECEIVE_ITEM_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_ENT_ANIMATION_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_ent_animation){
+        .entity = read_entity_id(r),
+        .animation = read_i8(r),
+    };
+    return 0;
+}
+
+size_t
 read_srv_pkt_spawn_player(struct pkt_buffer* r, struct srv_pkt_spawn_player* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);

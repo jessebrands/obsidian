@@ -18,6 +18,7 @@ set(DISSECT_SOURCES
         src/packet/buffer.c
         src/packet/buffer_reader.c
         src/packet/buffer_writer.c
+        src/packet/types_name.c
         src/dissect.c)
 
 add_executable(dissect
