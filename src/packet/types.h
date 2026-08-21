@@ -25,6 +25,7 @@ typedef bool mc_bool;
 #define SRV_PKT_ENTITY_SIZE                4u
 #define SRV_PKT_CHUNK_SIZE                 9u
 #define SRV_PKT_CHUNK_DATA_MIN_SIZE       17u
+#define SRV_PKT_0x34_MIN_SIZE             10u
 #define SRV_PKT_0x35_SIZE                 11u
 
 enum srv_pkt {
@@ -36,6 +37,7 @@ enum srv_pkt {
     SRV_ENTITY = 0x1e,
     SRV_CHUNK = 0x32,
     SRV_CHUNK_DATA = 0x33,
+    SRV_0x34 = 0x34,
     SRV_0x35 = 0x35,
 };
 

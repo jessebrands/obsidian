@@ -112,6 +112,15 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
 }
 
 static size_t
+print_srv_pkt_0x34(struct pkt_buffer* r) {
+    size_t const start = r->pos;
+    size_t const wanted = read_srv_pkt_0x34(r);
+    size_t const end = r->pos;
+    printf("skipping %zu bytes\n", end - start);
+    return wanted;
+}
+
+static size_t
 print_srv_pkt_0x35(struct pkt_buffer* r) {
     size_t const wanted = read_srv_pkt_0x35(r);
     printf("skipping %u bytes\n", SRV_PKT_0x35_SIZE);
@@ -147,6 +156,9 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
 
         case SRV_CHUNK_DATA:
             return print_srv_pkt_chunk_data(r);
+
+        case SRV_0x34:
+            return print_srv_pkt_0x34(r);
 
         case SRV_0x35:
             return print_srv_pkt_0x35(r);
@@ -207,6 +219,7 @@ dissect_stream(FILE* stream) {
 
             /* can this packet fit in our buffer? */
             if (needed > r.capacity) {
+                printf("growing buffer and retrying...\n");
                 if (pkt_buffer_resize(&r, needed) == NULL) {
                     fprintf(stderr, "error: failed to grow buffer\n");
                     exit(EXIT_FAILURE);
@@ -239,5 +252,6 @@ main(int argc, char** argv) {
     char const* filename = argv[1];
     dissect(filename);
 
+    printf("Reached end of stream, goodbye!! :-)\n");
     return EXIT_SUCCESS;
 }

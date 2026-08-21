@@ -81,6 +81,9 @@ size_t
 read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt);
 
 size_t
+read_srv_pkt_0x34(struct pkt_buffer* r);
+
+size_t
 read_srv_pkt_0x35(struct pkt_buffer* r);
 
 #endif //OBSIDIAN_WRITER_H

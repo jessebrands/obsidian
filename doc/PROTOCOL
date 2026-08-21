@@ -327,11 +327,50 @@ Server Packets
         D4 6A 86 4F E0 08 5F 42 57 98 AD 6F E5 2B F8
         0A DE F8 00 5E .. .. .. .. .. .. .. .. .. ..
 
+
+  Unknown (0x34) -- 26 bytes
+
+    Probably related to chunks, given packet ID and proximity to other chunk
+    packets.
+
+    Example packets
+
+      34
+      00 00 00 00
+      00 00 00 37
+      00 04
+      dc 10 cc 10
+      ec 10 db 10
+      0b 0b 0b 0b
+      04 02 05 02
+
+      34
+      00 00 00 09
+      00 00 00 39
+      00 04
+      f0 4d f1 4b
+      f1 4c f1 4d
+      00 00 00 00
+      00 00 00 00
+
+      34
+      00 00 00 09
+      00 00 00 36
+      00 06
+      8b 4b 8a 47
+      8a 48 8a 49
+      8a 4a 8a 4b
+      00 00 00 00
+      12 12 00 00
+      00 00 00 0e
+
+
   Unknown  (0x35) -- 11 bytes
 
-    Probably related to chunks, given packet ID.
+    Probably related to chunks, given packet ID and proximity to other chunk
+    packets.
 
-    Example packet
+      Example packet
 
         35
         00

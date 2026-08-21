@@ -228,7 +228,7 @@ read_srv_pkt_entity(struct pkt_buffer* r, struct srv_pkt_entity* pkt) {
         return SRV_PKT_ENTITY_SIZE;
     }
 
-    *pkt = (struct srv_pkt_entity) {
+    *pkt = (struct srv_pkt_entity){
         .id = read_dword(r),
     };
     return 0;
@@ -245,7 +245,7 @@ read_srv_pkt_chunk(struct pkt_buffer* r, struct srv_pkt_chunk* pkt) {
         return SRV_PKT_CHUNK_SIZE;
     }
 
-    *pkt = (struct srv_pkt_chunk) {
+    *pkt = (struct srv_pkt_chunk){
         .x = read_int(r),
         .z = read_int(r),
         .load = read_bool(r),
@@ -285,6 +285,29 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
         .compressed_size = compressed_size,
         .data = read_bytes(r, compressed_size),
     };
+    return 0;
+}
+
+size_t
+read_srv_pkt_0x34(struct pkt_buffer* r) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+
+    if (!read_has(r, SRV_PKT_0x34_MIN_SIZE)) {
+        r->overflow = true;
+    }
+
+    skip(r, sizeof(mc_dword) * 2);
+    mc_word const count = read_word(r);
+    size_t const len = count * sizeof(mc_dword);
+
+    /* some kind of variable data here */
+    if (!read_has(r, len)) {
+        r->overflow = true;
+        return SRV_PKT_0x34_MIN_SIZE + len;
+    }
+
+    skip(r, len);
     return 0;
 }
 
