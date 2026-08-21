@@ -72,6 +72,9 @@ size_t
 read_srv_pkt_0x15(struct pkt_buffer* r);
 
 size_t
+read_srv_pkt_0x11(struct pkt_buffer* r);
+
+size_t
 read_srv_pkt_entity(struct pkt_buffer* r, struct srv_pkt_entity* pkt);
 
 size_t

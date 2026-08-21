@@ -67,6 +67,13 @@ print_srv_pkt_full_position(struct pkt_buffer* r) {
 }
 
 static size_t
+print_srv_pkt_0x11(struct pkt_buffer* r) {
+    size_t const wanted = read_srv_pkt_0x11(r);
+    printf("skipping %u bytes\n", SRV_PKT_0x11_SIZE);
+    return wanted;
+}
+
+static size_t
 print_srv_pkt_0x15(struct pkt_buffer* r) {
     size_t const wanted = read_srv_pkt_0x15(r);
     printf("skipping %u bytes\n", SRV_PKT_0x15_SIZE);
@@ -144,6 +151,9 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
 
         case SRV_FULL_POSITION:
             return print_srv_pkt_full_position(r);
+
+        case SRV_0x11:
+            return print_srv_pkt_0x11(r);
 
         case SRV_0x15:
             return print_srv_pkt_0x15(r);

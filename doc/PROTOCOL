@@ -251,6 +251,21 @@ Server Packets
         00
 
 
+  Unknown (0x11) -- 22 bytes?
+
+    Hmm...
+
+      Example Packet
+
+        11
+        00 03 01 00
+        00 16 00 00
+        01 27 00 00
+        00 9a 1d 00
+        00 01 27 00
+        00 00
+
+
   Unknown (0x15) -- 22 bytes payload
 
     Entity position?

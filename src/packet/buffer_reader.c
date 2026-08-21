@@ -204,6 +204,20 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
 }
 
 size_t
+read_srv_pkt_0x11(struct pkt_buffer* r) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+
+    if (!read_has(r, SRV_PKT_0x11_SIZE)) {
+        r->overflow = true;
+    }
+
+    /* no overflow means this gets skipped */
+    skip(r, SRV_PKT_0x11_SIZE);
+    return 0;
+}
+
+size_t
 read_srv_pkt_0x15(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);

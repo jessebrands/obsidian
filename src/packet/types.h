@@ -21,6 +21,7 @@ typedef bool mc_bool;
 #define SRV_PKT_AUTH_SIZE                  8u
 #define SRV_PKT_MESSAGE_MIN_SIZE           2u
 #define SRV_PKT_FULL_POSITION_SIZE        41u
+#define SRV_PKT_0x11_SIZE                 22u
 #define SRV_PKT_0x15_SIZE                 22u
 #define SRV_PKT_ENTITY_SIZE                4u
 #define SRV_PKT_CHUNK_SIZE                 9u
@@ -33,6 +34,7 @@ enum srv_pkt {
     SRV_AUTH = 0x01,
     SRV_MESSAGE = 0x03,
     SRV_FULL_POSITION = 0x0d,
+    SRV_0x11 = 0x11,
     SRV_0x15 = 0x15,
     SRV_ENTITY = 0x1e,
     SRV_CHUNK = 0x32,
