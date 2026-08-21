@@ -213,7 +213,7 @@ print_srv_pkt_ent_look(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
     float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
 
-    printf("%08zx  %02x:%-15s  ", offset, 0x21, srv_pkt_name(0x21));
+    printf("%08zx  %02x:%-15s  ", offset, 0x20, srv_pkt_name(0x20));
     printf("{ entity: %08x, yaw: %.1f, pitch: %.1f }\n", pkt.id, yaw, pitch);
     return 0;
 }
@@ -233,7 +233,7 @@ print_srv_pkt_ent_move_look(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
     float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
 
-    printf("%08zx  %02x:%-15s  ", offset, 0x20, srv_pkt_name(0x20));
+    printf("%08zx  %02x:%-15s  ", offset, 0x21, srv_pkt_name(0x21));
     printf("{ entity: %08x, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f }\n",
            pkt.id, x, y, z, yaw, pitch);
     return 0;
