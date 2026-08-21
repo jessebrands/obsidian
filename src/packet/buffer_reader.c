@@ -218,16 +218,21 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
 }
 
 size_t
-read_srv_pkt_0x11(struct pkt_buffer* r) {
+read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
+    assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_0x11_SIZE)) {
+    if (!read_has(r, SRV_PKT_RECEIVE_ITEM_SIZE)) {
         r->overflow = true;
+        return SRV_PKT_RECEIVE_ITEM_SIZE;
     }
 
-    /* no overflow means this gets skipped */
-    skip(r, SRV_PKT_0x11_SIZE);
+    *pkt = (struct srv_pkt_receive_item) {
+        .item = read_i16(r),
+        .count = read_i8(r),
+        .durability = read_i16(r),
+    };
     return 0;
 }
 

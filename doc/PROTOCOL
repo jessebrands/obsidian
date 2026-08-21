@@ -276,14 +276,23 @@ Server Packets
         00
 
 
-  Unknown (0x11) -- 4 bytes?
+  Receive Item (0x11) -- 5 bytes
 
-    Hmm...
+    Sent to the client when the player receives an item.
+
+      Fields
+
+        type      value             notes
+        i16       item id
+        i8        stack count
+        i16       durability
 
       Example Packet
 
         11
-        00 03 01 00
+        00 03
+        01
+        00 00
 
 
   Spawn Item (0x15) -- 22 bytes payload

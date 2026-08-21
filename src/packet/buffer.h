@@ -69,7 +69,7 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
                            struct srv_pkt_full_position* pkt);
 
 size_t
-read_srv_pkt_0x11(struct pkt_buffer* r);
+read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt);
 
 size_t
 read_srv_pkt_spawn_item(struct pkt_buffer* r, struct srv_pkt_spawn_item* pkt);
