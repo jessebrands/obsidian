@@ -11,14 +11,14 @@ find_package(PkgConfig REQUIRED)
 #
 # Utility program for dissecting network dumps into structured data.
 set(DISSECT_HEADERS
-        src/packet.h
-        src/reader.h
-        src/types.h)
+        src/packet/buffer.h
+        src/packet/types.h)
 
 set(DISSECT_SOURCES
-        src/dissect.c
-        src/reader_buffer.c
-        src/reader_packet.c)
+        src/packet/buffer.c
+        src/packet/buffer_reader.c
+        src/packet/buffer_writer.c
+        src/dissect.c)
 
 add_executable(dissect
         ${DISSECT_HEADERS}
@@ -27,14 +27,13 @@ add_executable(dissect
 #
 # Utility program to proxy a Minecraft server
 set(PROXY_HEADERS
-        src/packet.h
-        src/reader.h
-        src/types.h)
+        src/packet/types.h)
 
 set(PROXY_SOURCES
-        src/proxy.c
-        src/reader_buffer.c
-        src/reader_packet.c)
+        src/packet/buffer.c
+        src/packet/buffer_reader.c
+        src/packet/buffer_writer.c
+        src/proxy.c)
 
 pkg_check_modules(liburing REQUIRED IMPORTED_TARGET GLOBAL liburing>=2.0)
 

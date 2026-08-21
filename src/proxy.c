@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "reader.h"
+#include "packet/buffer.h"
 
 enum phase {
     PHASE_RECEIVE,
@@ -28,7 +28,7 @@ struct relay {
     int from;
     int to;
     enum phase phase;
-    struct pkt_reader reader;
+    struct pkt_buffer buffer;
 };
 
 static void
@@ -43,7 +43,7 @@ handle_receive(struct io_uring* io, struct relay* relay,
     size_t bytes_in = (size_t) cqe->res;
 
     /* update buffer state */
-    relay->reader.cur += bytes_in;
+    relay->buffer.cur += bytes_in;
 
     /* todo: decode packets here if we can */
 
@@ -54,8 +54,8 @@ handle_receive(struct io_uring* io, struct relay* relay,
     io_uring_prep_send(
         sqe,
         relay->to,
-        &relay->reader.buffer[relay->reader.pos],
-        relay->reader.cur - relay->reader.pos,
+        &relay->buffer.data[relay->buffer.pos],
+        relay->buffer.cur - relay->buffer.pos,
         0
     );
     io_uring_sqe_set_data(sqe, relay);
@@ -76,19 +76,19 @@ handle_send(struct io_uring* io, struct relay* relay,
     size_t const bytes_out = (size_t) cqe->res;
 
     /* update buffer state */
-    relay->reader.pos += bytes_out;
-    relay->reader.offset += bytes_out;
-    reader_drop(&relay->reader);
+    relay->buffer.pos += bytes_out;
+    relay->buffer.out_total += bytes_out;
+    pkt_buffer_drop(&relay->buffer);
 
     struct io_uring_sqe* sqe = io_uring_get_sqe(io);
-    if (relay->reader.pos == relay->reader.cur) {
+    if (relay->buffer.pos == relay->buffer.cur) {
         /* we're sent all bytes, so get ready to receive */
         relay->phase = PHASE_RECEIVE;
         io_uring_prep_recv(
             sqe,
             relay->from,
-            &relay->reader.buffer[relay->reader.cur],
-            relay->reader.capacity - relay->reader.cur,
+            &relay->buffer.data[relay->buffer.cur],
+            relay->buffer.capacity - relay->buffer.cur,
             0
         );
     } else {
@@ -96,8 +96,8 @@ handle_send(struct io_uring* io, struct relay* relay,
         io_uring_prep_send(
             sqe,
             relay->to,
-            &relay->reader.buffer[relay->reader.pos],
-            relay->reader.cur - relay->reader.pos,
+            &relay->buffer.data[relay->buffer.pos],
+            relay->buffer.cur - relay->buffer.pos,
             0
         );
     }
@@ -117,13 +117,13 @@ proxy(struct relay* client, struct relay* server) {
     /* stage the initial receive from the client */
     struct io_uring_sqe* sqe = io_uring_get_sqe(&io);
     client->phase = PHASE_RECEIVE;
-    io_uring_prep_recv(sqe, client->from, client->reader.buffer, client->reader.capacity, 0);
+    io_uring_prep_recv(sqe, client->from, client->buffer.data, client->buffer.capacity, 0);
     io_uring_sqe_set_data(sqe, client);
 
     /* and the initial receive from the server */
     sqe = io_uring_get_sqe(&io);
     server->phase = PHASE_RECEIVE;
-    io_uring_prep_recv(sqe, server->from, server->reader.buffer, server->reader.capacity, 0);
+    io_uring_prep_recv(sqe, server->from, server->buffer.data, server->buffer.capacity, 0);
     io_uring_sqe_set_data(sqe, server);
 
     /* i/o loop */
@@ -223,13 +223,13 @@ int main(int argc, char** argv) {
         }
 
         struct relay client = {.from = client_fd, .to = server_fd};
-        if (reader_init(&client.reader, 512) == NULL) {
+        if (pkt_buffer_init(&client.buffer, 512) == NULL) {
             perror("reader_init");
             return EXIT_FAILURE;
         }
 
         struct relay server = {.from = server_fd, .to = client_fd};
-        if (reader_init(&server.reader, 1024 * 16) == NULL) {
+        if (pkt_buffer_init(&server.buffer, 1024 * 16) == NULL) {
             perror("reader_init");
             return EXIT_FAILURE;
         }
@@ -239,8 +239,8 @@ int main(int argc, char** argv) {
 
         /* we're done! */
         printf("Connections closed\n");
-        reader_end(&server.reader);
-        reader_end(&client.reader);
+        pkt_buffer_end(&server.buffer);
+        pkt_buffer_end(&client.buffer);
         close(server_fd);
         close(client_fd);
     }

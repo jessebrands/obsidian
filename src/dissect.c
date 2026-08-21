@@ -6,7 +6,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
-#include "reader.h"
+#include "packet/buffer.h"
 
 static char const*
 srv_pkt_name(enum srv_pkt const pkt) {
@@ -23,13 +23,13 @@ srv_pkt_name(enum srv_pkt const pkt) {
 }
 
 static size_t
-print_srv_pkt_heartbeat(struct pkt_reader* r) {
+print_srv_pkt_heartbeat(struct pkt_buffer* r) {
     printf("\n");
     return 0;
 }
 
 static size_t
-print_srv_pkt_auth(struct pkt_reader* r) {
+print_srv_pkt_auth(struct pkt_buffer* r) {
     struct srv_pkt_auth pkt;
     size_t const wanted = read_srv_pkt_auth(r, &pkt);
     if (wanted != 0) {
@@ -42,7 +42,7 @@ print_srv_pkt_auth(struct pkt_reader* r) {
 }
 
 static size_t
-print_srv_pkt_message(struct pkt_reader* r) {
+print_srv_pkt_message(struct pkt_buffer* r) {
     struct srv_pkt_message pkt;
     size_t const wanted = read_srv_pkt_message(r, &pkt);
     if (wanted != 0) {
@@ -54,7 +54,7 @@ print_srv_pkt_message(struct pkt_reader* r) {
 }
 
 static size_t
-print_srv_pkt_full_position(struct pkt_reader* r) {
+print_srv_pkt_full_position(struct pkt_buffer* r) {
     struct srv_pkt_full_position pkt;
     size_t const wanted = read_srv_pkt_full_position(r, &pkt);
     if (wanted != 0) {
@@ -67,14 +67,14 @@ print_srv_pkt_full_position(struct pkt_reader* r) {
 }
 
 static size_t
-print_srv_pkt_0x15(struct pkt_reader* r) {
+print_srv_pkt_0x15(struct pkt_buffer* r) {
     size_t const wanted = read_srv_pkt_0x15(r);
     printf("skipping %u bytes\n", SRV_PKT_0x15_SIZE);
     return wanted;
 }
 
 static size_t
-print_srv_pkt_entity(struct pkt_reader* r) {
+print_srv_pkt_entity(struct pkt_buffer* r) {
     struct srv_pkt_entity pkt;
     size_t const wanted = read_srv_pkt_entity(r, &pkt);
     if (wanted != 0) {
@@ -86,7 +86,7 @@ print_srv_pkt_entity(struct pkt_reader* r) {
 }
 
 static size_t
-print_srv_pkt_chunk(struct pkt_reader* r) {
+print_srv_pkt_chunk(struct pkt_buffer* r) {
     struct srv_pkt_chunk pkt;
     size_t const wanted = read_srv_pkt_chunk(r, &pkt);
     if (wanted != 0) {
@@ -99,7 +99,7 @@ print_srv_pkt_chunk(struct pkt_reader* r) {
 }
 
 static size_t
-print_srv_pkt_chunk_data(struct pkt_reader* r) {
+print_srv_pkt_chunk_data(struct pkt_buffer* r) {
     struct srv_pkt_chunk_data pkt;
     size_t const wanted = read_srv_pkt_chunk_data(r, &pkt);
     if (wanted != 0) {
@@ -112,15 +112,15 @@ print_srv_pkt_chunk_data(struct pkt_reader* r) {
 }
 
 static size_t
-print_srv_pkt_0x35(struct pkt_reader* r) {
+print_srv_pkt_0x35(struct pkt_buffer* r) {
     size_t const wanted = read_srv_pkt_0x35(r);
     printf("skipping %u bytes\n", SRV_PKT_0x35_SIZE);
     return wanted;
 }
 
 static size_t
-read_packet(struct pkt_reader* r, mc_byte const pkt_id) {
-    size_t const offset = r->offset - 1; /* header byte */
+read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
+    size_t const offset = r->in_total - 1; /* header byte */
     printf("%08zx  %02x:%-12s  ", offset, pkt_id, srv_pkt_name(pkt_id));
 
     switch (pkt_id) {
@@ -158,7 +158,7 @@ read_packet(struct pkt_reader* r, mc_byte const pkt_id) {
 }
 
 static size_t
-next_packet(struct pkt_reader* r) {
+next_packet(struct pkt_buffer* r) {
     mc_byte pkt_id;
     read_packet_id(r, &pkt_id);
     if (r->overflow) {
@@ -177,37 +177,37 @@ static void
 dissect_stream(FILE* stream) {
     assert(stream != NULL);
 
-    struct pkt_reader r = {0};
-    if (reader_init(&r, BUFFER_INITIAL_SIZE) == NULL) {
+    struct pkt_buffer r = {0};
+    if (pkt_buffer_init(&r, 128) == NULL) {
         fprintf(stderr, "error: could not allocate reader buffer\n");
         exit(EXIT_FAILURE);
     }
 
     while (!feof(stream)) {
         /* drop unneeded bytes first */
-        reader_drop(&r);
+        pkt_buffer_drop(&r);
 
         /* read as many bytes as we can */
-        if (reader_fill_from_file(&r, stream) == 0 && feof(stream)) {
+        if (pkt_buffer_fread(&r, stream) == 0 && feof(stream)) {
             fprintf(stderr, "error: unexpected EOF\n");
             exit(EXIT_FAILURE);
         }
 
         /* attempt to read the next packet */
         size_t const start = r.pos;
-        size_t const offset = r.offset;
+        size_t const offset = r.in_total;
         size_t const needed = next_packet(&r);
 
         /* if we have overflow, then the read failed */
         if (r.overflow) {
             /* rewind to the start of the packet */
             r.pos = start;
-            r.offset = offset;
+            r.in_total = offset;
             r.overflow = false;
 
             /* can this packet fit in our buffer? */
             if (needed > r.capacity) {
-                if (reader_grow(&r, needed) == NULL) {
+                if (pkt_buffer_resize(&r, needed) == NULL) {
                     fprintf(stderr, "error: failed to grow buffer\n");
                     exit(EXIT_FAILURE);
                 }

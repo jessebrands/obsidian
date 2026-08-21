@@ -1,11 +1,21 @@
 /*
- * packet.h: protocol packet definitions
+ * types.h: minecraft protocol types
  */
 
-#ifndef OBSIDIAN_PACKET_H
-#define OBSIDIAN_PACKET_H
+#ifndef OBSIDIAN_MC_TYPES_H
+#define OBSIDIAN_MC_TYPES_H
 
-#include "types.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+typedef uint8_t mc_byte;
+typedef uint16_t mc_word;
+typedef uint32_t mc_dword;
+typedef uint64_t mc_qword;
+typedef int32_t mc_int;
+typedef float mc_float;
+typedef double mc_double;
+typedef bool mc_bool;
 
 #define SRV_PKT_HEARTBEAT_SIZE             0u
 #define SRV_PKT_AUTH_SIZE                  8u
@@ -67,4 +77,4 @@ struct srv_pkt_chunk_data {
     mc_byte const* data;
 };
 
-#endif //OBSIDIAN_PACKET_H
+#endif //OBSIDIAN_MC_TYPES_H

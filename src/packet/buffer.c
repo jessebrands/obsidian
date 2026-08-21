@@ -1,15 +1,19 @@
 /*
- * reader_buffer.c: buffer operations
+ * buffer.c: packet buffer utility
  */
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "reader.h"
+#include "buffer.h"
+
+#define write_head(r) (&r->data[r->cur])
+#define write_avail(r) (r-> capacity - r->cur)
 
 uint8_t*
-reader_init(struct pkt_reader* r, size_t const sz) {
+pkt_buffer_init(struct pkt_buffer* r, size_t const sz) {
     assert(r != NULL);
     assert(sz > 0);
 
@@ -18,30 +22,27 @@ reader_init(struct pkt_reader* r, size_t const sz) {
         return NULL;
     }
 
-    *r = (struct pkt_reader){
-        .buffer = buffer,
-        .pos = 0,
-        .cur = 0,
+    *r = (struct pkt_buffer){
+        .data = buffer,
         .capacity = sz,
-        .offset = 0,
         .overflow = false,
     };
     return buffer;
 }
 
 void
-reader_end(struct pkt_reader* r) {
+pkt_buffer_end(struct pkt_buffer* r) {
     assert(r != NULL);
-    assert(r->buffer != NULL);
+    assert(r->data != NULL);
 
-    free(r->buffer);
-    r->buffer = NULL;
+    free(r->data);
+    r->data = NULL;
 }
 
 size_t
-reader_drop(struct pkt_reader* r) {
+pkt_buffer_drop(struct pkt_buffer* r) {
     assert(r != NULL);
-    assert(r->buffer != NULL);
+    assert(r->data != NULL);
     assert(r->pos <= r->cur);
     assert(r->cur <= r->capacity);
 
@@ -50,41 +51,41 @@ reader_drop(struct pkt_reader* r) {
     size_t const keep = r->cur - r->pos;
 
     /* drop the head keep the tail */
-    uint8_t const* tail = &r->buffer[drop];
-    memmove(r->buffer, tail, keep);
+    uint8_t const* tail = &r->data[drop];
+    memmove(r->data, tail, keep);
     r->pos = 0;
     r->cur = keep;
     return drop;
 }
 
 uint8_t*
-reader_grow(struct pkt_reader* r, size_t const sz) {
+pkt_buffer_resize(struct pkt_buffer* r, size_t const sz) {
     assert(r != NULL);
-    assert(r->buffer != NULL);
+    assert(r->data != NULL);
     assert(r->capacity < sz);
 
     /* allocate a new buffer */
-    uint8_t* new = realloc(r->buffer, sz);
+    uint8_t* new = realloc(r->data, sz);
     if (new == NULL) {
         return NULL;
     }
 
     /* update the state */
-    r->buffer = new;
+    r->data = new;
     r->capacity = sz;
-    return r->buffer;
+    return r->data;
 }
 
 size_t
-reader_fill_from_file(struct pkt_reader* r, FILE* strm) {
+pkt_buffer_fread(struct pkt_buffer* r, FILE* strm) {
     assert(r != NULL);
-    assert(r->buffer != NULL);
+    assert(r->data != NULL);
     assert(r->cur <= r->capacity);
     assert(strm != NULL);
 
     /* read as many bytes as we can */
-    uint8_t* buf = &r->buffer[r->cur];
-    size_t const avail = r->capacity - r->cur;
+    uint8_t* buf = write_head(r);
+    size_t const avail = write_avail(r);
     size_t const got = fread(buf, sizeof *buf, avail, strm);
 
     /* update our state */
