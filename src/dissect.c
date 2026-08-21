@@ -15,7 +15,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_AUTH: return "AUTH";
         case SRV_MESSAGE: return "MESSAGE";
         case SRV_FULL_POSITION: return "FULL_POS";
-        case SRV_ENTITY: return "ENTITY";
+        case SRV_ENT_FULL_POS: return "ENT_FULL_POS";
         case SRV_CHUNK: return "CHUNK";
         case SRV_CHUNK_DATA: return "CHUNK_DATA";
         default: return "UNKNOWN";
@@ -81,14 +81,71 @@ print_srv_pkt_0x15(struct pkt_buffer* r) {
 }
 
 static size_t
-print_srv_pkt_entity(struct pkt_buffer* r) {
-    struct srv_pkt_entity pkt;
-    size_t const wanted = read_srv_pkt_entity(r, &pkt);
+print_srv_pkt_0x16(struct pkt_buffer* r) {
+    struct srv_pkt_0x16 pkt;
+    size_t const wanted = read_srv_pkt_0x16(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
 
-    printf("{ id: %08" PRIx32 " }\n", pkt.id);
+    printf("{ entity0: %08x, entity1: %08x }\n", pkt.entity0, pkt.entity1);
+    return 0;
+}
+
+static size_t
+print_srv_pkt_0x1d(struct pkt_buffer* r) {
+    struct srv_pkt_0x1d pkt;
+    size_t const wanted = read_srv_pkt_0x1d(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    printf("{ entity: %08x }\n", pkt.entity);
+    return 0;
+}
+
+static size_t
+print_srv_pkt_0x1e(struct pkt_buffer* r) {
+    struct srv_pkt_0x1e pkt;
+    size_t const wanted = read_srv_pkt_0x1e(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    printf("{ entity: %08x }\n", pkt.entity);
+    return 0;
+}
+
+static size_t
+print_srv_pkt_0x1f(struct pkt_buffer* r) {
+    struct srv_pkt_0x1f pkt;
+    size_t const wanted = read_srv_pkt_0x1f(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    printf("{ id: %08x, unknown0: %d, unknown1: %d, unknown2: %d }\n",
+           pkt.id, pkt.unknown0, pkt.unknown1, pkt.unknown2);
+    return 0;
+}
+
+static size_t
+print_srv_pkt_ent_full_pos(struct pkt_buffer* r) {
+    struct srv_pkt_ent_full_pos pkt;
+    size_t const wanted = read_srv_pkt_ent_full_pos(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    /* entity positions and rotations need conversion */
+    double const x = (double) pkt.x / 32;
+    double const y = (double) pkt.y / 32;
+    double const z = (double) pkt.z / 32;
+    float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
+    float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
+
+    printf("{ id: %08x, x: %.2f, y: %.2f, z: %.2f, yaw: %.2f, pitch: %.2f }\n",
+           pkt.id, x, y, z, yaw, pitch);
     return 0;
 }
 
@@ -135,7 +192,7 @@ print_srv_pkt_0x35(struct pkt_buffer* r) {
 }
 
 static size_t
-read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
+read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
     size_t const offset = r->in_total - 1; /* header byte */
     printf("%08zx  %02x:%-12s  ", offset, pkt_id, srv_pkt_name(pkt_id));
 
@@ -158,8 +215,20 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
         case SRV_0x15:
             return print_srv_pkt_0x15(r);
 
-        case SRV_ENTITY:
-            return print_srv_pkt_entity(r);
+        case SRV_0x16:
+            return print_srv_pkt_0x16(r);
+
+        case SRV_0x1D:
+            return print_srv_pkt_0x1d(r);
+
+        case SRV_0x1E:
+            return print_srv_pkt_0x1e(r);
+
+        case SRV_0x1F:
+            return print_srv_pkt_0x1f(r);
+
+        case SRV_ENT_FULL_POS:
+            return print_srv_pkt_ent_full_pos(r);
 
         case SRV_CHUNK:
             return print_srv_pkt_chunk(r);
@@ -174,14 +243,14 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
             return print_srv_pkt_0x35(r);
 
         default:
-            fprintf(stderr, "error: unknown packet %02X\n", pkt_id);
+            fprintf(stdout, "unknown packet");
             exit(EXIT_FAILURE);
     }
 }
 
 static size_t
 next_packet(struct pkt_buffer* r) {
-    mc_byte pkt_id;
+    mc_byte_t pkt_id;
     read_packet_id(r, &pkt_id);
     if (r->overflow) {
         return 1;

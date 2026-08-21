@@ -8,22 +8,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef uint8_t mc_byte;
-typedef uint16_t mc_word;
-typedef uint32_t mc_dword;
-typedef uint64_t mc_qword;
-typedef int32_t mc_int;
-typedef float mc_float;
-typedef double mc_double;
-typedef bool mc_bool;
+typedef uint8_t mc_byte_t;
+typedef uint16_t mc_word_t;
+typedef uint32_t mc_dword_t;
+typedef uint64_t mc_qword_t;
+typedef int32_t mc_int_t;
+typedef float mc_float_t;
+typedef double mc_double_t;
+typedef int mc_fixed27_5_t;
+typedef bool mc_bool_t;
+
+typedef mc_int_t entity_id_t;
 
 #define SRV_PKT_HEARTBEAT_SIZE             0u
 #define SRV_PKT_AUTH_SIZE                  8u
 #define SRV_PKT_MESSAGE_MIN_SIZE           2u
 #define SRV_PKT_FULL_POSITION_SIZE        41u
-#define SRV_PKT_0x11_SIZE                 22u
+#define SRV_PKT_0x11_SIZE                  4u
 #define SRV_PKT_0x15_SIZE                 22u
-#define SRV_PKT_ENTITY_SIZE                4u
+#define SRV_PKT_0x16_SIZE                  8u
+#define SRV_PKT_0x1D_SIZE                  4u
+#define SRV_PKT_0x1E_SIZE                  4u
+#define SRV_PKT_0x1F_SIZE                  7u
+#define SRV_PKT_ENT_FULL_POS_SIZE         18u
 #define SRV_PKT_CHUNK_SIZE                 9u
 #define SRV_PKT_CHUNK_DATA_MIN_SIZE       17u
 #define SRV_PKT_0x34_MIN_SIZE             10u
@@ -36,7 +43,11 @@ enum srv_pkt {
     SRV_FULL_POSITION = 0x0d,
     SRV_0x11 = 0x11,
     SRV_0x15 = 0x15,
-    SRV_ENTITY = 0x1e,
+    SRV_0x16 = 0x16,
+    SRV_0x1D = 0x1d,
+    SRV_0x1E = 0x1e,
+    SRV_0x1F = 0x1f,
+    SRV_ENT_FULL_POS = 0x22,
     SRV_CHUNK = 0x32,
     SRV_CHUNK_DATA = 0x33,
     SRV_0x34 = 0x34,
@@ -44,41 +55,66 @@ enum srv_pkt {
 };
 
 struct srv_pkt_auth {
-    mc_dword unknown0;
-    mc_dword unknown1;
+    mc_dword_t unknown0;
+    mc_dword_t unknown1;
 };
 
 struct srv_pkt_message {
-    mc_word length;
-    mc_byte const* bytes;
+    mc_word_t length;
+    mc_byte_t const* bytes;
 };
 
 struct srv_pkt_full_position {
-    mc_double x;
-    mc_double head_y;
-    mc_double y;
-    mc_double z;
-    mc_float rotation;
-    mc_float head_pitch;
-    mc_bool grounded;
+    mc_double_t x;
+    mc_double_t head_y;
+    mc_double_t y;
+    mc_double_t z;
+    mc_float_t rotation;
+    mc_float_t head_pitch;
+    mc_bool_t grounded;
 };
 
-struct srv_pkt_entity {
-    mc_dword id;
+struct srv_pkt_0x16 {
+    entity_id_t entity0;
+    entity_id_t entity1;
+};
+
+struct srv_pkt_0x1d {
+    entity_id_t entity;
+};
+
+struct srv_pkt_0x1e {
+    entity_id_t entity;
+};
+
+struct srv_pkt_0x1f {
+    entity_id_t id;
+    mc_byte_t unknown0;
+    mc_byte_t unknown1;
+    mc_byte_t unknown2;
+};
+
+struct srv_pkt_ent_full_pos {
+    entity_id_t id;
+    mc_fixed27_5_t x;
+    mc_fixed27_5_t y;
+    mc_fixed27_5_t z;
+    mc_byte_t yaw;
+    mc_byte_t pitch;
 };
 
 struct srv_pkt_chunk {
-    mc_int x;
-    mc_int z;
-    mc_bool load;
+    mc_int_t x;
+    mc_int_t z;
+    mc_bool_t load;
 };
 
 struct srv_pkt_chunk_data {
-    mc_byte x;
-    mc_byte y;
-    mc_byte z;
-    mc_dword compressed_size;
-    mc_byte const* data;
+    mc_byte_t x;
+    mc_byte_t y;
+    mc_byte_t z;
+    mc_dword_t compressed_size;
+    mc_byte_t const* data;
 };
 
 #endif //OBSIDIAN_MC_TYPES_H

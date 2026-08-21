@@ -56,7 +56,7 @@ size_t
 pkt_buffer_fread(struct pkt_buffer* r, FILE* strm);
 
 size_t
-read_packet_id(struct pkt_buffer* r, mc_byte* id);
+read_packet_id(struct pkt_buffer* r, mc_byte_t* id);
 
 size_t
 read_srv_pkt_auth(struct pkt_buffer* r, struct srv_pkt_auth* pkt);
@@ -69,13 +69,25 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
                            struct srv_pkt_full_position* pkt);
 
 size_t
-read_srv_pkt_0x15(struct pkt_buffer* r);
-
-size_t
 read_srv_pkt_0x11(struct pkt_buffer* r);
 
 size_t
-read_srv_pkt_entity(struct pkt_buffer* r, struct srv_pkt_entity* pkt);
+read_srv_pkt_0x15(struct pkt_buffer* r);
+
+size_t
+read_srv_pkt_0x16(struct pkt_buffer* r, struct srv_pkt_0x16* pkt);
+
+size_t
+read_srv_pkt_0x1d(struct pkt_buffer* r, struct srv_pkt_0x1d* pkt);
+
+size_t
+read_srv_pkt_0x1e(struct pkt_buffer* r, struct srv_pkt_0x1e* pkt);
+
+size_t
+read_srv_pkt_0x1f(struct pkt_buffer* r, struct srv_pkt_0x1f* pkt);
+
+size_t
+read_srv_pkt_ent_full_pos(struct pkt_buffer* r, struct srv_pkt_ent_full_pos* pkt);
 
 size_t
 read_srv_pkt_chunk(struct pkt_buffer* r, struct srv_pkt_chunk* pkt);

@@ -15,24 +15,24 @@ skip(struct pkt_buffer* r, size_t const cnt) {
     r->in_total += cnt;
 }
 
-static mc_byte
+static mc_byte_t
 read_byte(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
-    assert(read_has(r, sizeof(mc_byte)));
+    assert(read_has(r, sizeof(mc_byte_t)));
 
-    mc_byte const b = read_head(r)[0];
+    mc_byte_t const b = read_head(r)[0];
     r->pos += sizeof b;
     r->in_total += sizeof b;
     return b;
 }
 
-static mc_word
+static mc_word_t
 read_word(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
 
-    mc_word x;
+    mc_word_t x;
     uint8_t const* b = read_head(r);
 
     /* copy and swap */
@@ -43,12 +43,12 @@ read_word(struct pkt_buffer* r) {
     return __builtin_bswap16(x);
 }
 
-static mc_dword
+static mc_dword_t
 read_dword(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
 
-    mc_dword x;
+    mc_dword_t x;
     uint8_t const* b = read_head(r);
 
     /* copy and swap */
@@ -59,12 +59,12 @@ read_dword(struct pkt_buffer* r) {
     return __builtin_bswap32(x);
 }
 
-static mc_qword
+static mc_qword_t
 read_qword(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
 
-    mc_qword x;
+    mc_qword_t x;
     uint8_t const* b = read_head(r);
 
     /* copy and swap */
@@ -75,40 +75,40 @@ read_qword(struct pkt_buffer* r) {
     return __builtin_bswap64(x);
 }
 
-static mc_int
+static mc_int_t
 read_int(struct pkt_buffer* r) {
-    return (mc_int) read_dword(r);
+    return (mc_int_t) read_dword(r);
 }
 
-static mc_float
+static mc_float_t
 read_float(struct pkt_buffer* r) {
-    mc_dword const x = read_dword(r);
-    mc_float f;
+    mc_dword_t const x = read_dword(r);
+    mc_float_t f;
 
     /* coerce into float */
     memcpy(&f, &x, sizeof f);
     return f;
 }
 
-static mc_double
+static mc_double_t
 read_double(struct pkt_buffer* r) {
-    mc_qword const x = read_qword(r);
-    mc_double d;
+    mc_qword_t const x = read_qword(r);
+    mc_double_t d;
 
     /* coerce into float */
     memcpy(&d, &x, sizeof d);
     return d;
 }
 
-static mc_bool
+static mc_bool_t
 read_bool(struct pkt_buffer* r) {
-    mc_byte const b = read_byte(r);
+    mc_byte_t const b = read_byte(r);
     /* ensure we're truly handling a bool */
     assert(b == 0 || b == 1);
     return b != 0;
 }
 
-static mc_byte const*
+static mc_byte_t const*
 read_bytes(struct pkt_buffer* r, size_t const len) {
     assert(r != NULL);
     assert(r->data != NULL);
@@ -120,8 +120,15 @@ read_bytes(struct pkt_buffer* r, size_t const len) {
     return b;
 }
 
+static entity_id_t
+read_entity_id(struct pkt_buffer* r) {
+    mc_int_t const x = read_int(r);
+    assert(x > 0 && x <= INT32_MAX);
+    return (entity_id_t) x;
+}
+
 size_t
-read_packet_id(struct pkt_buffer* r, mc_byte* id) {
+read_packet_id(struct pkt_buffer* r, mc_byte_t* id) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(id != NULL);
@@ -166,7 +173,7 @@ read_srv_pkt_message(struct pkt_buffer* r, struct srv_pkt_message* pkt) {
     }
 
     /* do we have the full string available? */
-    mc_word const len = read_word(r);
+    mc_word_t const len = read_word(r);
     if (read_avail(r) < len) {
         r->overflow = true;
         return SRV_PKT_MESSAGE_MIN_SIZE + len;
@@ -231,22 +238,98 @@ read_srv_pkt_0x15(struct pkt_buffer* r) {
     return 0;
 }
 
-size_t
-read_srv_pkt_entity(struct pkt_buffer* r, struct srv_pkt_entity* pkt) {
+size_t read_srv_pkt_0x16(struct pkt_buffer* r, struct srv_pkt_0x16* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_ENTITY_SIZE)) {
+    if (!read_has(r, SRV_PKT_0x16_SIZE)) {
         r->overflow = true;
-        return SRV_PKT_ENTITY_SIZE;
+        return SRV_PKT_0x16_SIZE;
     }
 
-    *pkt = (struct srv_pkt_entity){
-        .id = read_dword(r),
+    *pkt = (struct srv_pkt_0x16) {
+        .entity0 = read_entity_id(r),
+        .entity1 = read_entity_id(r),
     };
     return 0;
 }
+
+size_t read_srv_pkt_0x1d(struct pkt_buffer* r, struct srv_pkt_0x1d* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_0x1D_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_0x1D_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_0x1d) {
+        .entity = read_entity_id(r),
+    };
+    return 0;
+}
+
+size_t
+read_srv_pkt_0x1e(struct pkt_buffer* r, struct srv_pkt_0x1e* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_0x1E_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_0x1E_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_0x1e){
+        .entity = read_entity_id(r),
+    };
+    return 0;
+}
+
+size_t
+read_srv_pkt_0x1f(struct pkt_buffer* r, struct srv_pkt_0x1f* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_0x1F_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_0x1F_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_0x1f){
+        .id = read_entity_id(r),
+        .unknown0 = read_byte(r),
+        .unknown1 = read_byte(r),
+        .unknown2 = read_byte(r),
+    };
+    return 0;
+}
+
+size_t
+read_srv_pkt_ent_full_pos(struct pkt_buffer* r, struct srv_pkt_ent_full_pos* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_ENT_FULL_POS_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_ENT_FULL_POS_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_ent_full_pos){
+        .id = read_entity_id(r),
+        .x = read_int(r),
+        .y = read_int(r),
+        .z = read_int(r),
+        .yaw = read_byte(r),
+        .pitch = read_byte(r),
+    };
+    return 0;
+}
+
 
 size_t
 read_srv_pkt_chunk(struct pkt_buffer* r, struct srv_pkt_chunk* pkt) {
@@ -281,12 +364,12 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
     skip(r, 10); /* unknown data */
 
     /* read chunk extents */
-    mc_byte const x = read_byte(r);
-    mc_byte const y = read_byte(r);
-    mc_byte const z = read_byte(r);
+    mc_byte_t const x = read_byte(r);
+    mc_byte_t const y = read_byte(r);
+    mc_byte_t const z = read_byte(r);
 
     /* uncompressed data */
-    mc_dword const compressed_size = read_dword(r);
+    mc_dword_t const compressed_size = read_dword(r);
     if (read_avail(r) < compressed_size) {
         r->overflow = true;
         return SRV_PKT_CHUNK_DATA_MIN_SIZE + compressed_size;
@@ -311,9 +394,9 @@ read_srv_pkt_0x34(struct pkt_buffer* r) {
         r->overflow = true;
     }
 
-    skip(r, sizeof(mc_dword) * 2);
-    mc_word const count = read_word(r);
-    size_t const len = count * sizeof(mc_dword);
+    skip(r, sizeof(mc_dword_t) * 2);
+    mc_word_t const count = read_word(r);
+    size_t const len = count * sizeof(mc_dword_t);
 
     /* some kind of variable data here */
     if (!read_has(r, len)) {
