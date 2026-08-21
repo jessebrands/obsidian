@@ -391,10 +391,10 @@ Server Packets
         00
 
 
-  Chunk Update Ann(?)  (0x32)
+  Chunk (0x32)
 
-    Sent to the client when it has to load or unload a chunk, the data comes
-    later (presumably)
+    Sent to the client when it has to load or unload a chunk. If a chunk is
+    loaded, the data for it arrives later in 0x33.
 
       Fields
 
@@ -409,6 +409,7 @@ Server Packets
         ff ff ff f6
         00 00 00 27
         01
+
 
   Chunk Data (0x33) -- at least 17
 
