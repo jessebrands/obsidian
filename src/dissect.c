@@ -43,7 +43,7 @@ print_srv_pkt_auth(struct pkt_buffer* r) {
     }
 
     printf("%08zx  %02x:%-12s  ", offset, 0x01, srv_pkt_name(0x01));
-    printf("{ unknown0: %" PRIu32 ", unknown1: %" PRIu32 " }\n",
+    printf("{ unknown0: %" PRIi32 ", unknown1: %" PRIi32 " }\n",
            pkt.unknown0, pkt.unknown1);
     return 0;
 }
@@ -79,7 +79,15 @@ print_srv_pkt_full_position(struct pkt_buffer* r) {
 
 static size_t
 print_srv_pkt_0x11(struct pkt_buffer* r) {
-    return read_srv_pkt_0x11(r);
+    size_t const offset = r->in_total - 1;
+    size_t const wanted = read_srv_pkt_0x11(r);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    printf("%08zx  %02x:%-12s  ", offset, 0x11, srv_pkt_name(0x11));
+    printf("skipped %u bytes\n", SRV_PKT_0x11_SIZE);
+    return 0;
 }
 
 static size_t
@@ -94,11 +102,11 @@ print_srv_pkt_spawn_item(struct pkt_buffer* r) {
     double const x = (double) pkt.x / 32;
     double const y = (double) pkt.y / 32;
     double const z = (double) pkt.z / 32;
-    float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
-    float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
+    float const yaw = ((float) pkt.yaw / 128.0f) * 180.0f;
+    float const pitch = ((float) pkt.pitch / 128.0f) * 180.0f;
 
     printf("%08zx  %02x:%-12s  ", offset, 0x15, srv_pkt_name(0x15));
-    printf("{ entity: %08x, item: %04x, count: %u, x: %.2f, y: %.2f, z: %.2f, yaw: %.2f, pitch: %.2f, unknown: %d }\n",
+    printf("{ entity: %08x, item: %04x, count: %d, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f, unknown: %d }\n",
            pkt.entity, pkt.item, pkt.count, x, y, z, yaw, pitch, pkt.unknown);
     return 0;
 }
@@ -177,7 +185,7 @@ print_srv_pkt_ent_full_pos(struct pkt_buffer* r) {
     float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
 
     printf("%08zx  %02x:%-12s  ", offset, 0x22, srv_pkt_name(0x22));
-    printf("{ id: %08x, x: %.2f, y: %.2f, z: %.2f, yaw: %.2f, pitch: %.2f }\n",
+    printf("{ id: %08x, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f }\n",
            pkt.id, x, y, z, yaw, pitch);
     return 0;
 }
@@ -207,9 +215,9 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
     }
 
     printf("%08zx  %02x:%-12s  ", offset, 0x33, srv_pkt_name(0x33));
-    printf("{ origin( %d, %d, %d ), x: %u, y: %u, z: %u, "
-           "size %" PRIu32", data: ... }\n",
-           pkt.origin_x, pkt.origin_y, pkt.origin_z, pkt.x, pkt.y, pkt.z,
+    printf("{ origin( %d, %d, %d ), x: %d, y: %d, z: %d, "
+           "size %" PRIi32", data: ... }\n",
+           pkt.origin_x, pkt.origin_y, pkt.origin_z, pkt.width, pkt.height, pkt.depth,
            pkt.compressed_size);
 
     return 0;
@@ -228,7 +236,7 @@ print_srv_pkt_0x35(struct pkt_buffer* r) {
 }
 
 static size_t
-read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
+read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
     switch (pkt_id) {
         case SRV_HEARTBEAT:
             return print_srv_pkt_heartbeat(r);
@@ -283,7 +291,7 @@ read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
 
 static size_t
 next_packet(struct pkt_buffer* r) {
-    mc_byte_t pkt_id;
+    mc_byte pkt_id;
     read_packet_id(r, &pkt_id);
     if (r->overflow) {
         return 1;

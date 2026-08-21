@@ -8,19 +8,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef uint8_t mc_byte_t;
-typedef uint16_t mc_word_t;
-typedef uint32_t mc_dword_t;
-typedef uint64_t mc_qword_t;
-typedef int16_t mc_short_t;
-typedef int32_t mc_int_t;
-typedef float mc_float_t;
-typedef double mc_double_t;
-typedef int mc_fixed27_5_t;
-typedef bool mc_bool_t;
+typedef uint8_t mc_byte;
+typedef int8_t mc_i8;
+typedef int16_t mc_i16;
+typedef int32_t mc_i32;
+typedef int64_t mc_i64;
+typedef float mc_f32;
+typedef double mc_f64;
+typedef int32_t mc_f27_5;
+typedef bool mc_bool;
 
-typedef mc_int_t entity_id_t;
-typedef mc_short_t item_id_t;
+typedef mc_i32 entity_id;
 
 #define SRV_PKT_HEARTBEAT_SIZE             0u
 #define SRV_PKT_AUTH_SIZE                  8u
@@ -57,81 +55,81 @@ enum srv_pkt {
 };
 
 struct srv_pkt_auth {
-    mc_dword_t unknown0;
-    mc_dword_t unknown1;
+    mc_i32 unknown0;
+    mc_i32 unknown1;
 };
 
 struct srv_pkt_message {
-    mc_word_t length;
-    mc_byte_t const* bytes;
+    mc_i16 length;
+    mc_byte const* bytes;
 };
 
 struct srv_pkt_full_position {
-    mc_double_t x;
-    mc_double_t head_y;
-    mc_double_t y;
-    mc_double_t z;
-    mc_float_t rotation;
-    mc_float_t head_pitch;
-    mc_bool_t grounded;
+    mc_f64 x;
+    mc_f64 head_y;
+    mc_f64 y;
+    mc_f64 z;
+    mc_f32 rotation;
+    mc_f32 head_pitch;
+    mc_bool grounded;
 };
 
 struct srv_pkt_spawn_item {
-    entity_id_t entity;
-    item_id_t item;
-    mc_byte_t count;
-    mc_fixed27_5_t x;
-    mc_fixed27_5_t y;
-    mc_fixed27_5_t z;
-    mc_byte_t yaw;
-    mc_byte_t pitch;
-    mc_byte_t unknown;
+    entity_id entity;
+    mc_i16 item;
+    mc_i8 count;
+    mc_f27_5 x;
+    mc_f27_5 y;
+    mc_f27_5 z;
+    mc_i8 yaw;
+    mc_i8 pitch;
+    mc_i8 unknown;
 };
 
 struct srv_pkt_ent_pickup {
-    entity_id_t item;
-    entity_id_t entity;
+    entity_id item;
+    entity_id entity;
 };
 
 struct srv_pkt_ent_destroy {
-    entity_id_t entity;
+    entity_id entity;
 };
 
 struct srv_pkt_ent_alive {
-    entity_id_t entity;
+    entity_id entity;
 };
 
 struct srv_pkt_0x1f {
-    entity_id_t id;
-    mc_byte_t unknown0;
-    mc_byte_t unknown1;
-    mc_byte_t unknown2;
+    entity_id id;
+    mc_i8 unknown0;
+    mc_i8 unknown1;
+    mc_i8 unknown2;
 };
 
 struct srv_pkt_ent_full_pos {
-    entity_id_t id;
-    mc_fixed27_5_t x;
-    mc_fixed27_5_t y;
-    mc_fixed27_5_t z;
-    mc_byte_t yaw;
-    mc_byte_t pitch;
+    entity_id id;
+    mc_f27_5 x;
+    mc_f27_5 y;
+    mc_f27_5 z;
+    mc_i8 yaw;
+    mc_i8 pitch;
 };
 
 struct srv_pkt_chunk {
-    mc_int_t x;
-    mc_int_t z;
-    mc_bool_t load;
+    mc_i32 x;
+    mc_i32 z;
+    mc_bool load;
 };
 
 struct srv_pkt_chunk_data {
-    mc_int_t origin_x;
-    mc_short_t origin_y;
-    mc_int_t origin_z;
-    mc_byte_t x;
-    mc_byte_t y;
-    mc_byte_t z;
-    mc_dword_t compressed_size;
-    mc_byte_t const* data;
+    mc_i32 origin_x;
+    mc_i16 origin_y;
+    mc_i32 origin_z;
+    mc_i8 width;
+    mc_i8 height;
+    mc_i8 depth;
+    mc_i32 compressed_size;
+    mc_byte const* data;
 };
 
 #endif //OBSIDIAN_MC_TYPES_H

@@ -25,44 +25,47 @@ Types
 
   byte
 
-    Single byte.
+    Unsigned byte
 
-  word
+  i8
 
-    Two bytes, big-endian order.
+    Single-byte byte signed integer
 
-  dword
+  i16
 
-    Four bytes, big endian
+    Two-byte signed integer, big-endian
 
-  qword
+  i32
 
-    Eight bytes, big endian
+    Four-byte signed integer, big endian
 
-  int
+  i64
 
-    4 byte signed integer, big endian
+    Eight-byte signed integer, big endian
 
-  float
+  f32
 
     Four byte floating point number, IEEE 754
 
-  double
+  f64
 
     Eight byte floating point number, IEEE 754
 
-  fixed27_5
+  f27_5
 
-    Four byte fixed point decimal number; 27 integer bits, 5 decimal bits
+    Four byte fixed point decimal number; 27 integer bits, 5 fractional bits
 
   bool
 
     Single byte, value is either 0 or 1
 
-  string     length:word bytes:byte[length]
+  string     length:i16 bytes:byte[length]
 
-    Appears to be either an UTF-8 or ASCII string. First a word which is the
-    byte length. Maximum of 65,535 bytes.
+    UTF-8 string, max length INT16_MAX
+
+  eid
+
+    4-byte integer entity ID
 
 
 Client Packets
@@ -78,7 +81,7 @@ Client Packets
       Fields
 
         type      value             notes
-        dword(?)  unknown           0x0000000d
+        i32(?)    unknown           0x0000000d
         string    username          (min 3, max 16 chars)
         string    password          defaults to 'Password'
 
@@ -117,10 +120,10 @@ Client Packets
       Fields
 
         type      value             notes
-        double    x-position
-        double    y-position
-        double    head y-position
-        double    z-position
+        f64       x-position
+        f64       y-position
+        f64       head y-position
+        f64       z-position
         bool      grounded          true if grounded
 
       Example packet
@@ -140,8 +143,8 @@ Client Packets
       Fields
 
         type      value             notes
-        float     body rotation     in degrees
-        float     head pitch        in degrees
+        f32       body rotation     in degrees
+        f32        head pitch        in degrees
         bool      grounded          true if grounded
 
       Example packet
@@ -159,12 +162,12 @@ Client Packets
       Fields
 
         type      value             notes
-        double    x-position
-        double    y-position
-        double    head y-position
-        double    z-position
-        float     rotation
-        float     head pitch
+        f64       x-position
+        f64       y-position
+        f64       head y-position
+        f64       z-position
+        f32       rotation
+        f32       head pitch
         bool      grounded          true if grounded
 
       Example packet
@@ -201,29 +204,32 @@ Server Packets
 
     Keep alive packet, no payload.
 
-    Example packet
+      Example packet
 
-      00
-
-
-  Authentication? (0x01)
-
-    Example packet
-
-      01
-      00 00 00 00
-      00 00 00 00
+        00
 
 
-  Message? (0x03)
+  Authentication (0x01)
+
+    Sent to the client in response to their authentication packet.  Meaning of
+    fields entirely unknown as of now, but presumably the player's entityID.
+
+      Example packet
+
+        01
+        00 00 00 00
+        00 00 00 00
+
+
+  Message (0x03)
 
     Sent to display a message in the client chat window.
 
       Fields
 
         type      value             notes
-        string    message           Unsure what is up with the first 3 bytes.
-                                    It's not an RGB value, for sure.
+        string    message
+
       Example packet
 
         03
@@ -240,8 +246,8 @@ Server Packets
 
         type      value             notes
         double    x-position
-        double    head y-position
-        double    y-position
+        double    head y-position   !! inverted from client !!
+        double    y-position        !! inverted from client !!
         double    z-position
         float     rotation
         float     head pitch
@@ -259,7 +265,7 @@ Server Packets
         00
 
 
-  Unknown (0x11) --  4 bytes?
+  Unknown (0x11) -- 4 bytes?
 
     Hmm...
 
@@ -271,20 +277,20 @@ Server Packets
 
   Spawn Item (0x15) -- 22 bytes payload
 
-    Informs the client about a new
+    Informs the client about a new item.
 
       Fields
 
         type      value             notes
-        int       entity id
-        word      item ID
-        byte      stack count
-        fixed27_5 x
-        fixed27_5 y
-        fixed27_5 z
-        byte      yaw
-        byte      pitch
-        byte      unknown
+        eid       entity id
+        i16       item ID
+        i8        stack count
+        f27_5     x
+        f27_5     y
+        f27_5     z
+        i8        yaw
+        i8        pitch
+        i8        unknown
 
       Example packet
 
@@ -298,15 +304,16 @@ Server Packets
         00 00 00
 
 
-  Entity Picked Up? (0x16)
+  Entity Picked Up? (0x16) -- 8 bytes
 
-    Two entity IDs, often followed by 0x1d (presumably: destruction)
+    Two entity IDs, first is the entity being picked up (seems to always be an
+    entity ID), the second is the entity receiving the picked up entity.
 
       Fields
 
         type      value             notes
-        int       entity id         entity being picked up
-        int       entity id         the picker upper
+        eid
+        eid       receiver
 
       Example Packet
 
@@ -315,14 +322,14 @@ Server Packets
         00 00 01 35
 
 
-  Entity Destroyed (0x1D) -- 4 bytes payload
+  Entity Destroyed (0x1D) -- 4 bytes
 
     Notifies the client of the end of an entity's lifetime.
 
       Fields
 
         type      value             notes
-        int       entity id         entity being destroyed
+        eid       entity id         entity being destroyed
 
       Example Packet
 
@@ -330,14 +337,14 @@ Server Packets
         00 00 01 c3
 
 
-  Entity Alive (0x1E) -- 4 bytes payload
+  Entity Alive (0x1E) -- 4 bytes
 
     Notifies the client that an entity still exists.
 
       Fields
 
         type      value             notes
-        int       entity id
+        eid       entity id
 
       Example packet
 
@@ -353,10 +360,10 @@ Server Packets
       Fields
 
         type      value             notes
-        int       entity id
-        byte?
-        byte?
-        byte?
+        eid       entity id
+        i8?
+        i8?
+        i8?
 
       Example packet
 
@@ -374,12 +381,12 @@ Server Packets
       Fields
 
         type      value             notes
-        int       entityID
-        fixed27_5 x
-        fixed27_5 y
-        fixed27_5 z
-        byte      rotation
-        byte      rotation
+        eid       entityID
+        f27_5     x
+        f27_5     y
+        f27_5     z
+        i8        rotation
+        i8        rotation
 
       Example packet
 
@@ -399,8 +406,8 @@ Server Packets
       Fields
 
         type      value             notes
-        int       chunk x
-        int       chunk z
+        i32       chunk x
+        i32       chunk z
         bool      load              false to unload, true to load
 
       Example packet
@@ -419,14 +426,14 @@ Server Packets
       Fields
 
         type      value             notes
-        int       origin x
-        short     origin y
-        int       origin z
-        byte      x-extent
-        byte      y-extent
-        byte      z-extent
-        dword     compressed size
-        bytes[]   compressed data   zlib chunk data
+        i32       origin x
+        i16       origin y
+        i32       origin z
+        i8        width
+        i8        height
+        i8        depth
+        i32       size              compressed size
+        byte[]    data              zlib compressed
 
       Example packet
 
@@ -443,7 +450,7 @@ Server Packets
         0A DE F8 00 5E .. .. .. .. .. .. .. .. .. ..
 
 
-  Unknown (0x34) -- 26 bytes
+  Unknown (0x34) -- at least 10 bytes
 
     Probably related to chunks, given packet ID and proximity to other chunk
     packets.

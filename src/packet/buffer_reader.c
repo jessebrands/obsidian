@@ -15,24 +15,36 @@ skip(struct pkt_buffer* r, size_t const cnt) {
     r->in_total += cnt;
 }
 
-static mc_byte_t
+static mc_byte
 read_byte(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
-    assert(read_has(r, sizeof(mc_byte_t)));
+    assert(read_has(r, sizeof(mc_byte)));
 
-    mc_byte_t const b = read_head(r)[0];
+    uint8_t const b = read_head(r)[0];
     r->pos += sizeof b;
     r->in_total += sizeof b;
     return b;
 }
 
-static mc_word_t
-read_word(struct pkt_buffer* r) {
+static mc_i8
+read_i8(struct pkt_buffer* r) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(read_has(r, sizeof(mc_i8)));
+
+    uint8_t const b = read_head(r)[0];
+    r->pos += sizeof b;
+    r->in_total += sizeof b;
+    return (mc_i8) b;
+}
+
+static mc_i16
+read_i16(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
 
-    mc_word_t x;
+    uint16_t x;
     uint8_t const* b = read_head(r);
 
     /* copy and swap */
@@ -40,15 +52,15 @@ read_word(struct pkt_buffer* r) {
     memcpy(&x, b, sizeof x);
     r->pos += sizeof x;
     r->in_total += sizeof x;
-    return __builtin_bswap16(x);
+    return (mc_i16) __builtin_bswap16(x);
 }
 
-static mc_dword_t
-read_dword(struct pkt_buffer* r) {
+static mc_i32
+read_i32(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
 
-    mc_dword_t x;
+    uint32_t x;
     uint8_t const* b = read_head(r);
 
     /* copy and swap */
@@ -56,15 +68,15 @@ read_dword(struct pkt_buffer* r) {
     memcpy(&x, b, sizeof x);
     r->pos += sizeof x;
     r->in_total += sizeof x;
-    return __builtin_bswap32(x);
+    return (mc_i32) __builtin_bswap32(x);
 }
 
-static mc_qword_t
-read_qword(struct pkt_buffer* r) {
+static mc_i64
+read_i64(struct pkt_buffer* r) {
     assert(r != NULL);
     assert(r->data != NULL);
 
-    mc_qword_t x;
+    uint64_t x;
     uint8_t const* b = read_head(r);
 
     /* copy and swap */
@@ -72,48 +84,38 @@ read_qword(struct pkt_buffer* r) {
     memcpy(&x, b, sizeof x);
     r->pos += sizeof x;
     r->in_total += sizeof x;
-    return __builtin_bswap64(x);
+    return (mc_i64) __builtin_bswap64(x);
 }
 
-static mc_short_t
-read_short(struct pkt_buffer* r) {
-    return (mc_short_t) read_word(r);
-}
-
-static mc_int_t
-read_int(struct pkt_buffer* r) {
-    return (mc_int_t) read_dword(r);
-}
-
-static mc_float_t
-read_float(struct pkt_buffer* r) {
-    mc_dword_t const x = read_dword(r);
-    mc_float_t f;
+static mc_f32
+read_f32(struct pkt_buffer* r) {
+    mc_i32 const x = read_i32(r);
+    mc_f32 f;
 
     /* coerce into float */
     memcpy(&f, &x, sizeof f);
     return f;
 }
 
-static mc_double_t
-read_double(struct pkt_buffer* r) {
-    mc_qword_t const x = read_qword(r);
-    mc_double_t d;
+static mc_f64
+read_f64(struct pkt_buffer* r) {
+    mc_i64 const x = read_i64(r);
+    mc_f64 d;
 
     /* coerce into float */
     memcpy(&d, &x, sizeof d);
     return d;
 }
 
-static mc_bool_t
+static mc_bool
 read_bool(struct pkt_buffer* r) {
-    mc_byte_t const b = read_byte(r);
+    mc_byte const b = read_byte(r);
     /* ensure we're truly handling a bool */
     assert(b == 0 || b == 1);
     return b != 0;
 }
 
-static mc_byte_t const*
+static mc_byte const*
 read_bytes(struct pkt_buffer* r, size_t const len) {
     assert(r != NULL);
     assert(r->data != NULL);
@@ -125,22 +127,15 @@ read_bytes(struct pkt_buffer* r, size_t const len) {
     return b;
 }
 
-static entity_id_t
+static entity_id
 read_entity_id(struct pkt_buffer* r) {
-    mc_int_t const x = read_int(r);
-    assert(x > 0 && x <= INT32_MAX);
-    return (entity_id_t) x;
-}
-
-static item_id_t
-read_item_id(struct pkt_buffer* r) {
-    mc_word_t const x = read_word(r);
-    assert(x > 0 && x <= INT16_MAX);
-    return (item_id_t) x;
+    mc_i32 const x = read_i32(r);
+    assert(x >= 0 && x <= INT32_MAX);
+    return (entity_id) x;
 }
 
 size_t
-read_packet_id(struct pkt_buffer* r, mc_byte_t* id) {
+read_packet_id(struct pkt_buffer* r, mc_byte* id) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(id != NULL);
@@ -166,8 +161,8 @@ read_srv_pkt_auth(struct pkt_buffer* r, struct srv_pkt_auth* pkt) {
     }
 
     *pkt = (struct srv_pkt_auth){
-        .unknown0 = read_dword(r),
-        .unknown1 = read_dword(r),
+        .unknown0 = read_i32(r),
+        .unknown1 = read_i32(r),
     };
     return 0;
 }
@@ -185,7 +180,7 @@ read_srv_pkt_message(struct pkt_buffer* r, struct srv_pkt_message* pkt) {
     }
 
     /* do we have the full string available? */
-    mc_word_t const len = read_word(r);
+    mc_i16 const len = read_i16(r);
     if (read_avail(r) < len) {
         r->overflow = true;
         return SRV_PKT_MESSAGE_MIN_SIZE + len;
@@ -211,12 +206,12 @@ read_srv_pkt_full_position(struct pkt_buffer* r,
     }
 
     *pkt = (struct srv_pkt_full_position){
-        .x = read_double(r),
-        .head_y = read_double(r),
-        .y = read_double(r),
-        .z = read_double(r),
-        .rotation = read_float(r),
-        .head_pitch = read_float(r),
+        .x = read_f64(r),
+        .head_y = read_f64(r),
+        .y = read_f64(r),
+        .z = read_f64(r),
+        .rotation = read_f32(r),
+        .head_pitch = read_f32(r),
         .grounded = read_bool(r),
     };
     return 0;
@@ -249,14 +244,14 @@ read_srv_pkt_spawn_item(struct pkt_buffer* r, struct srv_pkt_spawn_item* pkt) {
     /* no overflow means this gets skipped */
     *pkt = (struct srv_pkt_spawn_item){
         .entity = read_entity_id(r),
-        .item = read_item_id(r),
-        .count = read_byte(r),
-        .x = read_int(r),
-        .y = read_int(r),
-        .z = read_int(r),
-        .yaw = read_byte(r),
-        .pitch = read_byte(r),
-        .unknown = read_byte(r),
+        .item = read_i16(r),
+        .count = read_i8(r),
+        .x = read_i32(r),
+        .y = read_i32(r),
+        .z = read_i32(r),
+        .yaw = read_i8(r),
+        .pitch = read_i8(r),
+        .unknown = read_i8(r),
     };
     return 0;
 }
@@ -324,9 +319,9 @@ read_srv_pkt_0x1f(struct pkt_buffer* r, struct srv_pkt_0x1f* pkt) {
 
     *pkt = (struct srv_pkt_0x1f){
         .id = read_entity_id(r),
-        .unknown0 = read_byte(r),
-        .unknown1 = read_byte(r),
-        .unknown2 = read_byte(r),
+        .unknown0 = read_i8(r),
+        .unknown1 = read_i8(r),
+        .unknown2 = read_i8(r),
     };
     return 0;
 }
@@ -344,11 +339,11 @@ read_srv_pkt_ent_full_pos(struct pkt_buffer* r, struct srv_pkt_ent_full_pos* pkt
 
     *pkt = (struct srv_pkt_ent_full_pos){
         .id = read_entity_id(r),
-        .x = read_int(r),
-        .y = read_int(r),
-        .z = read_int(r),
-        .yaw = read_byte(r),
-        .pitch = read_byte(r),
+        .x = read_i32(r),
+        .y = read_i32(r),
+        .z = read_i32(r),
+        .yaw = read_i8(r),
+        .pitch = read_i8(r),
     };
     return 0;
 }
@@ -366,8 +361,8 @@ read_srv_pkt_chunk(struct pkt_buffer* r, struct srv_pkt_chunk* pkt) {
     }
 
     *pkt = (struct srv_pkt_chunk){
-        .x = read_int(r),
-        .z = read_int(r),
+        .x = read_i32(r),
+        .z = read_i32(r),
         .load = read_bool(r),
     };
     return 0;
@@ -384,17 +379,17 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
         return SRV_PKT_CHUNK_DATA_MIN_SIZE;
     }
 
-    mc_int_t const origin_x = read_int(r);
-    mc_short_t const origin_y = read_short(r);
-    mc_int_t const origin_z = read_int(r);
+    mc_i32 const origin_x = read_i32(r);
+    mc_i16 const origin_y = read_i16(r);
+    mc_i32 const origin_z = read_i32(r);
 
     /* read chunk extents */
-    mc_byte_t const x = read_byte(r);
-    mc_byte_t const y = read_byte(r);
-    mc_byte_t const z = read_byte(r);
+    mc_i8 const x = read_i8(r);
+    mc_i8 const y = read_i8(r);
+    mc_i8 const z = read_i8(r);
 
     /* uncompressed data */
-    mc_dword_t const compressed_size = read_dword(r);
+    mc_i32 const compressed_size = read_i32(r);
     if (read_avail(r) < compressed_size) {
         r->overflow = true;
         return SRV_PKT_CHUNK_DATA_MIN_SIZE + compressed_size;
@@ -404,9 +399,9 @@ read_srv_pkt_chunk_data(struct pkt_buffer* r, struct srv_pkt_chunk_data* pkt) {
         .origin_x = origin_x,
         .origin_y = origin_y,
         .origin_z = origin_z,
-        .x = x,
-        .y = y,
-        .z = z,
+        .width = x,
+        .height = y,
+        .depth = z,
         .compressed_size = compressed_size,
         .data = read_bytes(r, compressed_size),
     };
@@ -422,9 +417,9 @@ read_srv_pkt_0x34(struct pkt_buffer* r) {
         r->overflow = true;
     }
 
-    skip(r, sizeof(mc_dword_t) * 2);
-    mc_word_t const count = read_word(r);
-    size_t const len = count * sizeof(mc_dword_t);
+    skip(r, sizeof(mc_i32) * 2);
+    mc_i16 const count = read_i16(r);
+    size_t const len = count * sizeof(mc_i32);
 
     /* some kind of variable data here */
     if (!read_has(r, len)) {

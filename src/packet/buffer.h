@@ -56,7 +56,7 @@ size_t
 pkt_buffer_fread(struct pkt_buffer* r, FILE* strm);
 
 size_t
-read_packet_id(struct pkt_buffer* r, mc_byte_t* id);
+read_packet_id(struct pkt_buffer* r, mc_byte* id);
 
 size_t
 read_srv_pkt_auth(struct pkt_buffer* r, struct srv_pkt_auth* pkt);
