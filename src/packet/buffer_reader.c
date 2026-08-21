@@ -237,6 +237,39 @@ read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt
 }
 
 size_t
+read_srv_pkt_spawn_player(struct pkt_buffer* r, struct srv_pkt_spawn_player* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_SPAWN_PLAYER_MIN_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_SPAWN_PLAYER_MIN_SIZE;
+    }
+
+    entity_id const eid = read_entity_id(r);
+    mc_i16 const name_length = read_i16(r);
+
+    if (!read_has(r, name_length + 16)) {
+        r->overflow = true;
+        return SRV_PKT_SPAWN_PLAYER_MIN_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_spawn_player) {
+        .entity = eid,
+        .name_length = name_length,
+        .name = read_bytes(r, name_length),
+        .x = read_i32(r),
+        .y = read_i32(r),
+        .z = read_i32(r),
+        .yaw = read_i8(r),
+        .pitch = read_i8(r),
+        .item = read_i16(r),
+    };
+    return 0;
+}
+
+size_t
 read_srv_pkt_spawn_item(struct pkt_buffer* r, struct srv_pkt_spawn_item* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);

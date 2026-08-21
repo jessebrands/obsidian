@@ -295,6 +295,36 @@ Server Packets
         00 00
 
 
+  Spawn Player (0x14)
+
+    Sent when a player joins the game.
+
+      Fields
+
+        type      value             notes
+        eid       entity id
+        string    entity name
+        f27_5     x
+        f27_5     y
+        f27_5     z
+        i8        yaw
+        i8        pitch
+        i16       held item
+
+      Example packet
+
+        14
+        00 00 01 24
+        00 09
+        50 6c 61 79 65 72 35 35 30       "Player550"
+        ff ff cd 90
+        00 00 08 73
+        ff ff d9 b0
+        00
+        00
+        00 00
+
+
   Spawn Item (0x15) -- 22 bytes payload
 
     Informs the client about a new item.

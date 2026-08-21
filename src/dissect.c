@@ -16,6 +16,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_MESSAGE: return "MESSAGE";
         case SRV_FULL_POSITION: return "FULL_POS";
         case SRV_RECEIVE_ITEM: return "RECEIVE_ITEM";
+        case SRV_SPAWN_PLAYER: return "SPAWN_PLAYER";
         case SRV_SPAWN_ITEM: return "SPAWN_ITEM";
         case SRV_ENT_PICKUP: return "ENT_PICKUP";
         case SRV_ENT_DESTROY: return "ENT_DESTROY";
@@ -90,6 +91,28 @@ print_srv_pkt_receive_item(struct pkt_buffer* r) {
     printf("%08zx  %02x:%-12s  ", offset, 0x11, srv_pkt_name(0x11));
     printf("{ item: %d, count: %d, durability: %d }\n",
            pkt.item, pkt.count, pkt.durability);
+    return 0;
+}
+
+static size_t
+print_srv_pkt_spawn_player(struct pkt_buffer* r) {
+    struct srv_pkt_spawn_player pkt;
+    size_t const offset = r->in_total - 1;
+    size_t const wanted = read_srv_pkt_spawn_player(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    double const x = (double) pkt.x / 32;
+    double const y = (double) pkt.y / 32;
+    double const z = (double) pkt.z / 32;
+    float const yaw = ((float) pkt.yaw / 128.0f) * 180.0f;
+    float const pitch = ((float) pkt.pitch / 128.0f) * 180.0f;
+
+    printf("%08zx  %02x:%-12s  ", offset, 0x14, srv_pkt_name(0x14));
+    printf("{ entity: %08x, name: \"%.*s\", x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch %1.f, item: %d }\n",
+           pkt.entity, pkt.name_length, (char const*) pkt.name,
+           x, y, z, yaw, pitch, pkt.item);
     return 0;
 }
 
@@ -275,6 +298,9 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
         case SRV_RECEIVE_ITEM:
             return print_srv_pkt_receive_item(r);
 
+        case SRV_SPAWN_PLAYER:
+            return print_srv_pkt_spawn_player(r);
+
         case SRV_SPAWN_ITEM:
             return print_srv_pkt_spawn_item(r);
 
@@ -306,7 +332,7 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
             return print_srv_pkt_0x35(r);
 
         default:
-            fprintf(stderr, "unknown packet %u\n", pkt_id);
+            fprintf(stderr, "unknown packet 0x%02x\n", pkt_id);
             exit(EXIT_FAILURE);
     }
 }

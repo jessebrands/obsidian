@@ -69,6 +69,7 @@ struct mc_offset {
 #define SRV_PKT_MESSAGE_MIN_SIZE           2u
 #define SRV_PKT_FULL_POSITION_SIZE        41u
 #define SRV_PKT_RECEIVE_ITEM_SIZE          4u
+#define SRV_PKT_SPAWN_PLAYER_MIN_SIZE      6u
 #define SRV_PKT_SPAWN_ITEM_SIZE           22u
 #define SRV_PKT_ENT_PICKUP_SIZE            8u
 #define SRV_PKT_ENT_DESTROY_SIZE           4u
@@ -86,6 +87,7 @@ enum srv_pkt {
     SRV_MESSAGE = 0x03,
     SRV_FULL_POSITION = 0x0d,
     SRV_RECEIVE_ITEM = 0x11,
+    SRV_SPAWN_PLAYER = 0x14,
     SRV_SPAWN_ITEM = 0x15,
     SRV_ENT_PICKUP = 0x16,
     SRV_ENT_DESTROY = 0x1d,
@@ -122,6 +124,18 @@ struct srv_pkt_receive_item {
     mc_i16 item;
     mc_i8 count;
     mc_i16 durability;
+};
+
+struct srv_pkt_spawn_player {
+    entity_id entity;
+    mc_i16 name_length;
+    mc_byte const* name;
+    mc_f27_5 x;
+    mc_f27_5 y;
+    mc_f27_5 z;
+    mc_i8 yaw;
+    mc_i8 pitch;
+    mc_i16 item;
 };
 
 struct srv_pkt_spawn_item {
