@@ -423,9 +423,9 @@ Server Packets
         06
 
 
-  Entity Rotation? (0x20)
+  Entity Look (0x20)
 
-    Describes the rotation of an entity.
+    Describes the look direction of an entity.
 
       Fields
 
@@ -440,6 +440,31 @@ Server Packets
         00 00 01 24
         12
         07
+
+
+  Entity Move and Look (0x21)
+
+    hmm...
+
+      Fields
+
+        type      value             notes
+        eid       entity id
+        i8        x                 divide by 32
+        i8        y                 divide by 32
+        i8        z                 divide by 32
+        i8        yaw               divide by 128
+        i8        pitch             divide by 128
+
+      Example packet
+
+        21
+        00 00 01 24
+        01
+        00
+        07
+        46
+        10
 
 
   Entity Full Position (0x22) -- 18 bytes

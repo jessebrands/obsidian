@@ -228,7 +228,7 @@ read_srv_pkt_receive_item(struct pkt_buffer* r, struct srv_pkt_receive_item* pkt
         return SRV_PKT_RECEIVE_ITEM_SIZE;
     }
 
-    *pkt = (struct srv_pkt_receive_item) {
+    *pkt = (struct srv_pkt_receive_item){
         .item = read_i16(r),
         .count = read_i8(r),
         .durability = read_i16(r),
@@ -255,7 +255,7 @@ read_srv_pkt_spawn_player(struct pkt_buffer* r, struct srv_pkt_spawn_player* pkt
         return SRV_PKT_SPAWN_PLAYER_MIN_SIZE;
     }
 
-    *pkt = (struct srv_pkt_spawn_player) {
+    *pkt = (struct srv_pkt_spawn_player){
         .entity = eid,
         .name_length = name_length,
         .name = read_bytes(r, name_length),
@@ -365,18 +365,40 @@ read_srv_ent_move(struct pkt_buffer* r, struct srv_pkt_ent_move* pkt) {
 }
 
 size_t
-read_srv_pkt_ent_rotate(struct pkt_buffer* r, struct srv_pkt_ent_rotate* pkt) {
+read_srv_pkt_ent_look(struct pkt_buffer* r, struct srv_pkt_ent_look* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_ENT_ROTATE_SIZE)) {
+    if (!read_has(r, SRV_PKT_ENT_LOOK_SIZE)) {
         r->overflow = true;
-        return SRV_PKT_ENT_ROTATE_SIZE;
+        return SRV_PKT_ENT_LOOK_SIZE;
     }
 
-    *pkt = (struct srv_pkt_ent_rotate){
+    *pkt = (struct srv_pkt_ent_look){
         .id = read_entity_id(r),
+        .yaw = read_i8(r),
+        .pitch = read_i8(r),
+    };
+    return 0;
+}
+
+size_t
+read_srv_pkt_ent_move_look(struct pkt_buffer* r, struct srv_pkt_ent_move_look* pkt) {
+    assert(r != NULL);
+    assert(r->data != NULL);
+    assert(pkt != NULL);
+
+    if (!read_has(r, SRV_PKT_ENT_MOVE_LOOK_SIZE)) {
+        r->overflow = true;
+        return SRV_PKT_ENT_MOVE_LOOK_SIZE;
+    }
+
+    *pkt = (struct srv_pkt_ent_move_look){
+        .id = read_entity_id(r),
+        .x = read_i8(r),
+        .y = read_i8(r),
+        .z = read_i8(r),
         .yaw = read_i8(r),
         .pitch = read_i8(r),
     };

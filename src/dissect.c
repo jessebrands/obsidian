@@ -22,7 +22,8 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_ENT_DESTROY: return "ENT_DESTROY";
         case SRV_ENT_ALIVE: return "ENT_ALIVE";
         case SRV_ENT_MOVE: return "ENT_MOVE";
-        case SRV_ENT_ROTATE: return "ENT_ROTATE";
+        case SRV_ENT_LOOK: return "ENT_LOOK";
+        case SRV_ENT_MOVE_LOOK: return "ENT_MOVE_LOOK";
         case SRV_ENT_FULL_POS: return "ENT_FULL_POS";
         case SRV_CHUNK: return "CHUNK";
         case SRV_CHUNK_DATA: return "CHUNK_DATA";
@@ -33,7 +34,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
 static size_t
 print_srv_pkt_heartbeat(struct pkt_buffer* r) {
     size_t const offset = r->in_total - 1;
-    printf("%08zx  %02x:%-12s\n", offset, 0x00, srv_pkt_name(0x00));
+    printf("%08zx  %02x:%-15s\n", offset, 0x00, srv_pkt_name(0x00));
     return 0;
 }
 
@@ -46,7 +47,7 @@ print_srv_pkt_auth(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x01, srv_pkt_name(0x01));
+    printf("%08zx  %02x:%-15s  ", offset, 0x01, srv_pkt_name(0x01));
     printf("{ unknown0: %" PRIi32 ", unknown1: %" PRIi32 " }\n",
            pkt.unknown0, pkt.unknown1);
     return 0;
@@ -61,7 +62,7 @@ print_srv_pkt_message(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x03, srv_pkt_name(0x03));
+    printf("%08zx  %02x:%-15s  ", offset, 0x03, srv_pkt_name(0x03));
     printf("\"%.*s\"\n", pkt.length, (char const*) pkt.bytes);
     return 0;
 }
@@ -75,7 +76,7 @@ print_srv_pkt_full_position(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x0d, srv_pkt_name(0x0d));
+    printf("%08zx  %02x:%-15s  ", offset, 0x0d, srv_pkt_name(0x0d));
     printf("{ x: %.2f, head_y: %.2f, y: %.2f,  z: %.2f, rotation: %.2f, head_pitch: %.2f, grounded: %s }\n",
            pkt.x, pkt.head_y, pkt.y, pkt.z, pkt.rotation, pkt.head_pitch, pkt.grounded ? "true" : "false");
     return 0;
@@ -90,7 +91,7 @@ print_srv_pkt_receive_item(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x11, srv_pkt_name(0x11));
+    printf("%08zx  %02x:%-15s  ", offset, 0x11, srv_pkt_name(0x11));
     printf("{ item: %d, count: %d, durability: %d }\n",
            pkt.item, pkt.count, pkt.durability);
     return 0;
@@ -111,7 +112,7 @@ print_srv_pkt_spawn_player(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 128.0f) * 180.0f;
     float const pitch = ((float) pkt.pitch / 128.0f) * 180.0f;
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x14, srv_pkt_name(0x14));
+    printf("%08zx  %02x:%-15s  ", offset, 0x14, srv_pkt_name(0x14));
     printf("{ entity: %08x, name: \"%.*s\", x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch %1.f, item: %d }\n",
            pkt.entity, pkt.name_length, (char const*) pkt.name,
            x, y, z, yaw, pitch, pkt.item);
@@ -133,7 +134,7 @@ print_srv_pkt_spawn_item(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 128.0f) * 180.0f;
     float const pitch = ((float) pkt.pitch / 128.0f) * 180.0f;
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x15, srv_pkt_name(0x15));
+    printf("%08zx  %02x:%-15s  ", offset, 0x15, srv_pkt_name(0x15));
     printf("{ entity: %08x, item: %04x, count: %d, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f, unknown: %d }\n",
            pkt.entity, pkt.item, pkt.count, x, y, z, yaw, pitch, pkt.unknown);
     return 0;
@@ -148,7 +149,7 @@ print_srv_pkt_ent_pickup(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x16, srv_pkt_name(0x16));
+    printf("%08zx  %02x:%-15s  ", offset, 0x16, srv_pkt_name(0x16));
     printf("{ entity: %08x, receiver: %08x }\n", pkt.item, pkt.entity);
     return 0;
 }
@@ -162,7 +163,7 @@ print_srv_pkt_ent_destroy(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x1d, srv_pkt_name(0x1d));
+    printf("%08zx  %02x:%-15s  ", offset, 0x1d, srv_pkt_name(0x1d));
     printf("{ entity: %08x }\n", pkt.entity);
     return 0;
 }
@@ -176,7 +177,7 @@ print_srv_pkt_ent_alive(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x1e, srv_pkt_name(0x1e));
+    printf("%08zx  %02x:%-15s  ", offset, 0x1e, srv_pkt_name(0x1e));
     printf("{ entity: %08x }\n", pkt.entity);
     return 0;
 }
@@ -194,17 +195,17 @@ print_srv_pkt_ent_move(struct pkt_buffer* r) {
     double const y = (double) pkt.y / 32.0;
     double const z = (double) pkt.z / 32.0;
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x1f, srv_pkt_name(0x1f));
+    printf("%08zx  %02x:%-15s  ", offset, 0x1f, srv_pkt_name(0x1f));
     printf("{ entity: %08x, x: %.1f, y: %.1f, z: %.1f }\n",
            pkt.id, x, y, z);
     return 0;
 }
 
 static size_t
-print_srv_pkt_ent_rotate(struct pkt_buffer* r) {
-    struct srv_pkt_ent_rotate pkt;
+print_srv_pkt_ent_look(struct pkt_buffer* r) {
+    struct srv_pkt_ent_look pkt;
     size_t const offset = r->in_total - 1;
-    size_t const wanted = read_srv_pkt_ent_rotate(r, &pkt);
+    size_t const wanted = read_srv_pkt_ent_look(r, &pkt);
     if (wanted != 0) {
         return wanted;
     }
@@ -212,8 +213,29 @@ print_srv_pkt_ent_rotate(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
     float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x20, srv_pkt_name(0x20));
-    printf("{ id: %08x, yaw: %.1f, pitch: %.1f }\n", pkt.id, yaw, pitch);
+    printf("%08zx  %02x:%-15s  ", offset, 0x21, srv_pkt_name(0x21));
+    printf("{ entity: %08x, yaw: %.1f, pitch: %.1f }\n", pkt.id, yaw, pitch);
+    return 0;
+}
+
+static size_t
+print_srv_pkt_ent_move_look(struct pkt_buffer* r) {
+    struct srv_pkt_ent_move_look pkt;
+    size_t const offset = r->in_total - 1;
+    size_t const wanted = read_srv_pkt_ent_move_look(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    double const x = (double) pkt.x / 32.0;
+    double const y = (double) pkt.y / 32.0;
+    double const z = (double) pkt.z / 32.0;
+    float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
+    float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
+
+    printf("%08zx  %02x:%-15s  ", offset, 0x20, srv_pkt_name(0x20));
+    printf("{ entity: %08x, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f }\n",
+           pkt.id, x, y, z, yaw, pitch);
     return 0;
 }
 
@@ -233,8 +255,8 @@ print_srv_pkt_ent_full_pos(struct pkt_buffer* r) {
     float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
     float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x22, srv_pkt_name(0x22));
-    printf("{ id: %08x, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f }\n",
+    printf("%08zx  %02x:%-15s  ", offset, 0x22, srv_pkt_name(0x22));
+    printf("{ entity: %08x, x: %.1f, y: %.1f, z: %.1f, yaw: %.1f, pitch: %.1f }\n",
            pkt.id, x, y, z, yaw, pitch);
     return 0;
 }
@@ -248,7 +270,7 @@ print_srv_pkt_chunk(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x32, srv_pkt_name(0x32));
+    printf("%08zx  %02x:%-15s  ", offset, 0x32, srv_pkt_name(0x32));
     printf("{ x: %d, z: %d, load: %s }\n",
            pkt.chunk.x, pkt.chunk.z, pkt.load ? "true" : "false");
     return 0;
@@ -263,7 +285,7 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
         return wanted;
     }
 
-    printf("%08zx  %02x:%-12s  ", offset, 0x33, srv_pkt_name(0x33));
+    printf("%08zx  %02x:%-15s  ", offset, 0x33, srv_pkt_name(0x33));
     printf("{ origin( %d, %d, %d ), extent( %d, %d, %d ) "
            "size %" PRIi32", data: ... }\n",
            pkt.origin.x, pkt.origin.y, pkt.origin.z,
@@ -283,8 +305,8 @@ print_srv_pkt_0x34(struct pkt_buffer* r) {
     }
 
     size_t const end = r->in_total;
-    printf("%08zx  %02x:%-12s  ", offset, 0x34, srv_pkt_name(0x34));
-    printf("skipping %zu bytes\n", end-start);
+    printf("%08zx  %02x:%-15s  ", offset, 0x34, srv_pkt_name(0x34));
+    printf("skipping %zu bytes\n", end - start);
     return 0;
 }
 
@@ -298,8 +320,8 @@ print_srv_pkt_0x35(struct pkt_buffer* r) {
     }
 
     size_t const end = r->in_total;
-    printf("%08zx  %02x:%-12s  ", offset, 0x35, srv_pkt_name(0x35));
-    printf("skipping %zu bytes\n", end-start);
+    printf("%08zx  %02x:%-15s  ", offset, 0x35, srv_pkt_name(0x35));
+    printf("skipping %zu bytes\n", end - start);
     return 0;
 }
 
@@ -339,8 +361,11 @@ read_packet(struct pkt_buffer* r, mc_byte const pkt_id) {
         case SRV_ENT_MOVE:
             return print_srv_pkt_ent_move(r);
 
-        case SRV_ENT_ROTATE:
-            return print_srv_pkt_ent_rotate(r);
+        case SRV_ENT_LOOK:
+            return print_srv_pkt_ent_look(r);
+
+        case SRV_ENT_MOVE_LOOK:
+            return print_srv_pkt_ent_move_look(r);
 
         case SRV_ENT_FULL_POS:
             return print_srv_pkt_ent_full_pos(r);

@@ -90,7 +90,10 @@ size_t
 read_srv_ent_move(struct pkt_buffer* r, struct srv_pkt_ent_move* pkt);
 
 size_t
-read_srv_pkt_ent_rotate(struct pkt_buffer* r, struct srv_pkt_ent_rotate* pkt);
+read_srv_pkt_ent_look(struct pkt_buffer* r, struct srv_pkt_ent_look* pkt);
+
+size_t
+read_srv_pkt_ent_move_look(struct pkt_buffer* r, struct srv_pkt_ent_move_look* pkt);
 
 size_t
 read_srv_pkt_ent_full_pos(struct pkt_buffer* r, struct srv_pkt_ent_full_pos* pkt);
