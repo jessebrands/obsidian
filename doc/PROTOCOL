@@ -269,25 +269,33 @@ Server Packets
         00 03 01 00
 
 
-  Unknown (0x15) -- 22 bytes payload
+  Spawn Item (0x15) -- 22 bytes payload
 
-    Entity position?
+    Informs the client about a new
 
       Fields
 
         type      value             notes
         int       entity id
-        [ .. 18 bytes .. ]
+        word      item ID
+        byte      stack count
+        fixed27_5 x
+        fixed27_5 y
+        fixed27_5 z
+        byte      yaw
+        byte      pitch
+        byte      unknown
 
       Example packet
 
         15
         00 00 09 DB
-        00 06 01 FF
-        FF FB 9C 00
-        00 08 44 00
-        00 66 CE 00
-        00 00
+        00 06
+        01
+        FF FF FB 9C
+        00 00 08 44
+        00 00 66 CE
+        00 00 00
 
 
   Entity Picked Up? (0x16)
@@ -307,7 +315,7 @@ Server Packets
         00 00 01 35
 
 
-  Entity Destroyed -- 4 bytes payload
+  Entity Destroyed (0x1D) -- 4 bytes payload
 
     Notifies the client of the end of an entity's lifetime.
 

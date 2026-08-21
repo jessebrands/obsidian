@@ -15,6 +15,7 @@ srv_pkt_name(enum srv_pkt const pkt) {
         case SRV_AUTH: return "AUTH";
         case SRV_MESSAGE: return "MESSAGE";
         case SRV_FULL_POSITION: return "FULL_POS";
+        case SRV_SPAWN_ITEM: return "SPAWN_ITEM";
         case SRV_ENT_DESTROY: return "ENT_DESTROY";
         case SRV_ENT_ALIVE: return "ENT_ALIVE";
         case SRV_ENT_FULL_POS: return "ENT_FULL_POS";
@@ -81,8 +82,24 @@ print_srv_pkt_0x11(struct pkt_buffer* r) {
 }
 
 static size_t
-print_srv_pkt_0x15(struct pkt_buffer* r) {
-    return read_srv_pkt_0x15(r);
+print_srv_pkt_spawn_item(struct pkt_buffer* r) {
+    struct srv_pkt_spawn_item pkt;
+    size_t const offset = r->in_total - 1;
+    size_t const wanted = read_srv_pkt_spawn_item(r, &pkt);
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    double const x = (double) pkt.x / 32;
+    double const y = (double) pkt.y / 32;
+    double const z = (double) pkt.z / 32;
+    float const yaw = ((float) pkt.yaw / 256.0f) * 360.0f;
+    float const pitch = ((float) pkt.pitch / 256.0f) * 360.0f;
+
+    printf("%08zx  %02x:%-12s  ", offset, 0x15, srv_pkt_name(0x15));
+    printf("{ entity: %08x, item: %04x, count: %u, x: %.2f, y: %.2f, z: %.2f, yaw: %.2f, pitch: %.2f, unknown: %d }\n",
+           pkt.entity, pkt.item, pkt.count, x, y, z, yaw, pitch, pkt.unknown);
+    return 0;
 }
 
 static size_t
@@ -224,8 +241,8 @@ read_packet(struct pkt_buffer* r, mc_byte_t const pkt_id) {
         case SRV_0x11:
             return print_srv_pkt_0x11(r);
 
-        case SRV_0x15:
-            return print_srv_pkt_0x15(r);
+        case SRV_SPAWN_ITEM:
+            return print_srv_pkt_spawn_item(r);
 
         case SRV_0x16:
             return print_srv_pkt_0x16(r);

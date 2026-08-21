@@ -127,6 +127,13 @@ read_entity_id(struct pkt_buffer* r) {
     return (entity_id_t) x;
 }
 
+static item_id_t
+read_item_id(struct pkt_buffer* r) {
+    mc_word_t const x = read_word(r);
+    assert(x > 0 && x <= INT16_MAX);
+    return (item_id_t) x;
+}
+
 size_t
 read_packet_id(struct pkt_buffer* r, mc_byte_t* id) {
     assert(r != NULL);
@@ -225,16 +232,27 @@ read_srv_pkt_0x11(struct pkt_buffer* r) {
 }
 
 size_t
-read_srv_pkt_0x15(struct pkt_buffer* r) {
+read_srv_pkt_spawn_item(struct pkt_buffer* r, struct srv_pkt_spawn_item* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
+    assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_0x15_SIZE)) {
+    if (!read_has(r, SRV_PKT_SPAWN_ITEM_SIZE)) {
         r->overflow = true;
     }
 
     /* no overflow means this gets skipped */
-    skip(r, SRV_PKT_0x15_SIZE);
+    *pkt = (struct srv_pkt_spawn_item){
+        .entity = read_entity_id(r),
+        .item = read_item_id(r),
+        .count = read_byte(r),
+        .x = read_int(r),
+        .y = read_int(r),
+        .z = read_int(r),
+        .yaw = read_byte(r),
+        .pitch = read_byte(r),
+        .unknown = read_byte(r),
+    };
     return 0;
 }
 
@@ -248,7 +266,7 @@ size_t read_srv_pkt_0x16(struct pkt_buffer* r, struct srv_pkt_0x16* pkt) {
         return SRV_PKT_0x16_SIZE;
     }
 
-    *pkt = (struct srv_pkt_0x16) {
+    *pkt = (struct srv_pkt_0x16){
         .entity0 = read_entity_id(r),
         .entity1 = read_entity_id(r),
     };
@@ -265,7 +283,7 @@ size_t read_srv_pkt_ent_destroy(struct pkt_buffer* r, struct srv_pkt_ent_destroy
         return SRV_PKT_ENT_DESTROY_SIZE;
     }
 
-    *pkt = (struct srv_pkt_ent_destroy) {
+    *pkt = (struct srv_pkt_ent_destroy){
         .entity = read_entity_id(r),
     };
     return 0;

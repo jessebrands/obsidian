@@ -12,6 +12,7 @@ typedef uint8_t mc_byte_t;
 typedef uint16_t mc_word_t;
 typedef uint32_t mc_dword_t;
 typedef uint64_t mc_qword_t;
+typedef int16_t mc_short_t;
 typedef int32_t mc_int_t;
 typedef float mc_float_t;
 typedef double mc_double_t;
@@ -19,13 +20,14 @@ typedef int mc_fixed27_5_t;
 typedef bool mc_bool_t;
 
 typedef mc_int_t entity_id_t;
+typedef mc_short_t item_id_t;
 
 #define SRV_PKT_HEARTBEAT_SIZE             0u
 #define SRV_PKT_AUTH_SIZE                  8u
 #define SRV_PKT_MESSAGE_MIN_SIZE           2u
 #define SRV_PKT_FULL_POSITION_SIZE        41u
 #define SRV_PKT_0x11_SIZE                  4u
-#define SRV_PKT_0x15_SIZE                 22u
+#define SRV_PKT_SPAWN_ITEM_SIZE           22u
 #define SRV_PKT_0x16_SIZE                  8u
 #define SRV_PKT_ENT_DESTROY_SIZE           4u
 #define SRV_PKT_ENT_ALIVE_SIZE             4u
@@ -42,7 +44,7 @@ enum srv_pkt {
     SRV_MESSAGE = 0x03,
     SRV_FULL_POSITION = 0x0d,
     SRV_0x11 = 0x11,
-    SRV_0x15 = 0x15,
+    SRV_SPAWN_ITEM = 0x15,
     SRV_0x16 = 0x16,
     SRV_ENT_DESTROY = 0x1d,
     SRV_ENT_ALIVE = 0x1e,
@@ -72,6 +74,18 @@ struct srv_pkt_full_position {
     mc_float_t rotation;
     mc_float_t head_pitch;
     mc_bool_t grounded;
+};
+
+struct srv_pkt_spawn_item {
+    entity_id_t entity;
+    item_id_t item;
+    mc_byte_t count;
+    mc_fixed27_5_t x;
+    mc_fixed27_5_t y;
+    mc_fixed27_5_t z;
+    mc_byte_t yaw;
+    mc_byte_t pitch;
+    mc_byte_t unknown;
 };
 
 struct srv_pkt_0x16 {
