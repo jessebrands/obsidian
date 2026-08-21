@@ -28,7 +28,7 @@ typedef mc_short_t item_id_t;
 #define SRV_PKT_FULL_POSITION_SIZE        41u
 #define SRV_PKT_0x11_SIZE                  4u
 #define SRV_PKT_SPAWN_ITEM_SIZE           22u
-#define SRV_PKT_0x16_SIZE                  8u
+#define SRV_PKT_ENT_PICKUP_SIZE            8u
 #define SRV_PKT_ENT_DESTROY_SIZE           4u
 #define SRV_PKT_ENT_ALIVE_SIZE             4u
 #define SRV_PKT_0x1F_SIZE                  7u
@@ -45,7 +45,7 @@ enum srv_pkt {
     SRV_FULL_POSITION = 0x0d,
     SRV_0x11 = 0x11,
     SRV_SPAWN_ITEM = 0x15,
-    SRV_0x16 = 0x16,
+    SRV_ENT_PICKUP = 0x16,
     SRV_ENT_DESTROY = 0x1d,
     SRV_ENT_ALIVE = 0x1e,
     SRV_0x1F = 0x1f,
@@ -88,9 +88,9 @@ struct srv_pkt_spawn_item {
     mc_byte_t unknown;
 };
 
-struct srv_pkt_0x16 {
-    entity_id_t entity0;
-    entity_id_t entity1;
+struct srv_pkt_ent_pickup {
+    entity_id_t item;
+    entity_id_t entity;
 };
 
 struct srv_pkt_ent_destroy {

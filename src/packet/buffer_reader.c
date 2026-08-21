@@ -256,19 +256,19 @@ read_srv_pkt_spawn_item(struct pkt_buffer* r, struct srv_pkt_spawn_item* pkt) {
     return 0;
 }
 
-size_t read_srv_pkt_0x16(struct pkt_buffer* r, struct srv_pkt_0x16* pkt) {
+size_t read_srv_pkt_ent_pickup(struct pkt_buffer* r, struct srv_pkt_ent_pickup* pkt) {
     assert(r != NULL);
     assert(r->data != NULL);
     assert(pkt != NULL);
 
-    if (!read_has(r, SRV_PKT_0x16_SIZE)) {
+    if (!read_has(r, SRV_PKT_ENT_PICKUP_SIZE)) {
         r->overflow = true;
-        return SRV_PKT_0x16_SIZE;
+        return SRV_PKT_ENT_PICKUP_SIZE;
     }
 
-    *pkt = (struct srv_pkt_0x16){
-        .entity0 = read_entity_id(r),
-        .entity1 = read_entity_id(r),
+    *pkt = (struct srv_pkt_ent_pickup){
+        .item = read_entity_id(r),
+        .entity = read_entity_id(r),
     };
     return 0;
 }

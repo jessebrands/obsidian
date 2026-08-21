@@ -75,7 +75,7 @@ size_t
 read_srv_pkt_spawn_item(struct pkt_buffer* r, struct srv_pkt_spawn_item* pkt);
 
 size_t
-read_srv_pkt_0x16(struct pkt_buffer* r, struct srv_pkt_0x16* pkt);
+read_srv_pkt_ent_pickup(struct pkt_buffer* r, struct srv_pkt_ent_pickup* pkt);
 
 size_t
 read_srv_pkt_ent_destroy(struct pkt_buffer* r, struct srv_pkt_ent_destroy* pkt);
