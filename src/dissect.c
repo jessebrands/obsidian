@@ -229,14 +229,32 @@ print_srv_pkt_chunk_data(struct pkt_buffer* r) {
 
 static size_t
 print_srv_pkt_0x34(struct pkt_buffer* r) {
+    size_t const offset = r->in_total - 1;
+    size_t const start = r->in_total;
     size_t const wanted = read_srv_pkt_0x34(r);
-    return wanted;
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    size_t const end = r->in_total;
+    printf("%08zx  %02x:%-12s  ", offset, 0x34, srv_pkt_name(0x34));
+    printf("skipping %zu bytes\n", end-start);
+    return 0;
 }
 
 static size_t
 print_srv_pkt_0x35(struct pkt_buffer* r) {
+    size_t const offset = r->in_total - 1;
+    size_t const start = r->in_total;
     size_t const wanted = read_srv_pkt_0x35(r);
-    return wanted;
+    if (wanted != 0) {
+        return wanted;
+    }
+
+    size_t const end = r->in_total;
+    printf("%08zx  %02x:%-12s  ", offset, 0x35, srv_pkt_name(0x35));
+    printf("skipping %zu bytes\n", end-start);
+    return 0;
 }
 
 static size_t
